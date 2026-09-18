@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>东华商旅 · 销售报价工具</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #eef2f7; margin: 0; padding: 16px; color: #1a2b4a; font-size: 14px;
+  }
+  .app { max-width: 1400px; margin: 0 auto; }
+
+  .header {
+    background: #fff; border-radius: 12px; padding: 18px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  }
+  .header h1 { margin: 0; font-size: 20px; color: #0b2b4a; }
+  .header .sub { font-size: 12px; color: #5e6f8d; margin-top: 4px; }
+
+  .toolbar {
+    position: sticky; top: 0; z-index: 100;
+    background: #fff; border-radius: 12px; padding: 10px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 12px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  }
+  .toolbar .spacer { flex: 1; }
+  .btn {
+    padding: 8px 18px; border: none; border-radius: 8px; font-size: 13px;
+    font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: inherit;
+  }
+  .btn-primary { background: #1a73e8; color: #fff; }
+  .btn-primary:hover { background: #1557b0; }
+  .btn-outline { background: #fff; color: #1a2b4a; border: 1px solid #d0d7e2; }
+  .btn-outline:hover { background: #f5f7fa; }
+  .btn-danger { background: #fff; color: #c73e3e; border: 1px solid #f0c0c0; }
+  .btn-danger:hover { background: #fdf0f0; }
+  .status { font-size: 12px; color: #0a8f5c; }
+  .status.error { color: #c73e3e; }
+
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 1050px) { .layout { grid-template-columns: 1fr; } }
+
+  .card {
+    background: #fff; border-radius: 12px; padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 12px;
+  }
+  .card h2 {
+    font-size: 14px; font-weight: 600; color: #0b2b4a; margin: 0 0 12px 0;
+    padding-bottom: 8px; border-bottom: 2px solid #eef2f7;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card h2 .num {
+    background: #1a73e8; color: #fff; width: 22px; height: 22px;
+    border-radius: 50%; display: inline-flex; align-items: center;
+    justify-content: center; font-size: 12px; flex-shrink: 0;
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px 14px; }
+  .form-full { grid-column: 1 / -1; }
+  .fg { display: flex; flex-direction: column; gap: 4px; }
+  .fg label { font-size: 12px; font-weight: 500; color: #2d3a5a; }
+  .fg label .hint { color: #8892a8; font-weight: 400; font-size: 11px; }
+  .fg input, .fg select {
+    width: 100%; padding: 7px 9px; border: 1px solid #d0d7e2;
+    border-radius: 6px; font-size: 13px; font-family: inherit;
+    background: #fff; color: #1a2b4a; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .fg input:focus, .fg select:focus {
+    outline: none; border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.10);
+  }
+  .input-unit { display: flex; align-items: center; gap: 6px; }
+  .input-unit input { flex: 1; }
+  .input-unit .unit { font-size: 12px; color: #5e6f8d; white-space: nowrap; }
+
+  .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .radio-item {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border: 1px solid #e4eaf2; border-radius: 6px;
+    background: #f7f9fc; cursor: pointer; font-size: 13px;
+    transition: all 0.15s; user-select: none;
+  }
+  .radio-item:hover { background: #eef4fb; border-color: #c8d8ea; }
+  .radio-item.selected { background: #e8f0fe; border-color: #1a73e8; color: #0b2b4a; font-weight: 500; }
+  .radio-item input { display: none; }
+
+  .collapse-header {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none; padding: 6px 0;
+    font-size: 14px; font-weight: 600; color: #0b2b4a;
+  }
+  .collapse-header .arrow {
+    transition: transform 0.2s; font-size: 12px; color: #5e6f8d;
+  }
+  .collapse-header.open .arrow { transform: rotate(90deg); }
+  .collapse-body { display: none; margin-top: 10px; }
+  .collapse-body.show { display: block; }
+
+  .conditional { display: none; }
+  .conditional.show { display: flex; }
+  .conditional-block { display: none; }
+  .conditional-block.show { display: block; }
+
+  .summary-box {
+    background: #f8f9fc; border-radius: 8px; padding: 10px 14px;
+    border: 1px solid #e4eaf2; margin-top: 8px;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 0; font-size: 13px;
+  }
+  .summary-row .label { color: #3d4e6b; }
+  .summary-row .value { font-weight: 600; color: #0b2b4a; }
+  .summary-row.total { border-top: 1px solid #d0d7e2; margin-top: 4px; padding-top: 8px; }
+  .summary-row.total .value { color: #1a73e8; font-size: 15px; }
+  .summary-row .value.green { color: #0a8f5c; }
+  .summary-row .value.orange { color: #e8a838; }
+
+  .struct-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
+  .struct-slider { display: flex; align-items: center; gap: 8px; }
+  .struct-slider .icon-label {
+    min-width: 48px; font-size: 13px; font-weight: 500; color: #2d3a5a; flex-shrink: 0;
+  }
+  .struct-slider input[type="range"] {
+    flex: 1; min-width: 60px; accent-color: #1a73e8; cursor: pointer;
+  }
+  .struct-slider .val {
+    min-width: 100px; text-align: right; font-weight: 600;
+    font-size: 13px; color: #0b2b4a; line-height: 1.3; flex-shrink: 0;
+  }
+  .struct-slider .val small {
+    display: block; font-weight: 400; color: #5e6f8d; font-size: 11px; margin-top: 1px;
+  }
+  .struct-header {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
+  }
+  .struct-summary {
+    font-size: 13px; color: #3d4e6b; background: #fff;
+    padding: 3px 10px; border-radius: 14px; border: 1px solid #e4eaf2;
+  }
+  .struct-summary strong { color: #0b2b4a; }
+  .struct-summary .remain { color: #1a73e8; font-weight: 600; margin-left: 6px; }
+  .struct-summary .remain.over { color: #c73e3e; }
+
+  .service-group-title {
+    font-size: 12px; font-weight: 600; color: #0b2b4a;
+    margin: 14px 0 10px 0; padding-bottom: 6px;
+    border-bottom: 1px dashed #e4eaf2;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .service-group-title:first-child { margin-top: 4px; }
+  .service-group-title::before {
+    content: ''; display: inline-block;
+    width: 3px; height: 12px; background: #1a73e8; border-radius: 2px;
+  }
+  .service-group-title .count-badge {
+    margin-left: auto; background: #e8f0fe; color: #1a73e8;
+    font-size: 11px; font-weight: 500;
+    padding: 1px 8px; border-radius: 10px;
+  }
+
+  .service-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  @media (max-width: 700px) {
+    .service-grid { grid-template-columns: 1fr; }
+  }
+
+  .service-card {
+    border: 1px solid #e4eaf2; border-radius: 8px;
+    padding: 10px 12px; background: #fafbfd;
+    transition: all 0.2s;
+  }
+  .service-card.active {
+    border-color: #a8c5e8;
+    background: #f0f6ff;
+    box-shadow: 0 0 0 2px rgba(26,115,232,0.06);
+  }
+
+  .service-header {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .service-title {
+    font-size: 13px; font-weight: 600; color: #0b2b4a;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .service-title .icon { font-size: 14px; }
+
+  .service-toggle {
+    width: auto; padding: 4px 8px;
+    font-size: 12px; font-family: inherit;
+    border: 1px solid #d0d7e2; border-radius: 4px;
+    background: #fff; color: #1a2b4a; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .service-toggle:focus {
+    outline: none; border-color: #1a73e8;
+  }
+  .service-card.active .service-toggle {
+    border-color: #1a73e8; color: #1a73e8;
+    background: #fff; font-weight: 500;
+  }
+
+  .service-body {
+    display: none; margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #d0e0f2;
+  }
+  .service-card.active .service-body {
+    display: block;
+  }
+
+  .sys-list {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .sys-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; background: #fff;
+    border: 1px solid #e4eaf2; border-radius: 6px;
+    font-size: 12px; transition: all 0.15s;
+  }
+  .sys-item.checked {
+    border-color: #a8c5e8;
+    background: #f0f6ff;
+  }
+  .sys-item label {
+    flex: 1; display: flex; align-items: center; gap: 6px;
+    cursor: pointer; font-weight: 500; color: #2d3a5a;
+    margin: 0;
+  }
+  .sys-item input[type="checkbox"] {
+    width: 15px; height: 15px;
+    accent-color: #1a73e8; cursor: pointer; flex-shrink: 0;
+  }
+  .sys-item input[type="number"] {
+    width: 58px; padding: 3px 6px;
+    font-size: 12px; font-family: inherit;
+    border: 1px solid #d0d7e2; border-radius: 4px;
+    text-align: right; background: #fff;
+    transition: border-color 0.15s;
+  }
+  .sys-item input[type="number"]:focus {
+    outline: none; border-color: #1a73e8;
+  }
+  .sys-item input[type="number"]:disabled {
+    background: #f5f7fa; color: #a0aab8;
+    cursor: not-allowed;
+  }
+  .sys-item .unit {
+    font-size: 11px; color: #5e6f8d; white-space: nowrap;
+  }
+  .sys-item.unchecked label {
+    color: #8892a8;
+  }
+
+  .tmc-row {
+    display: grid;
+    grid-template-columns: 140px 60px 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+  }
+  .tmc-row .tmc-label {
+    font-weight: 500; color: #2d3a5a;
+  }
+  .tmc-row .tmc-hint {
+    font-size: 11px; color: #8892a8;
+  }
+  .tmc-row input[type="number"] {
+    width: 100%;
+    padding: 3px 6px;
+    font-size: 12px; font-family: inherit;
+    border: 1px solid #d0d7e2; border-radius: 4px;
+    text-align: right;
+  }
+
+  .result-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 12px; }
+  .result-table th, .result-table td {
+    border: 1px solid #e4eaf2; padding: 6px 8px; text-align: left;
+  }
+  .result-table th { background: #f7f9fc; font-weight: 600; color: #3d4e6b; }
+  .result-table td.num { text-align: right; font-weight: 500; }
+  .result-table tr.section-row td { background: #eef4fb; font-weight: 600; color: #0b2b4a; }
+  .subtotal-row td { background: #fafbfd; }
+
+  .result-tabs { display: flex; gap: 0; margin-bottom: 12px; border-bottom: 2px solid #eef2f7; }
+  .result-tab {
+    padding: 7px 18px; font-size: 13px; font-weight: 500; color: #5e6f8d;
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .result-tab:hover { color: #1a73e8; }
+  .result-tab.active { color: #1a73e8; border-bottom-color: #1a73e8; }
+
+  .inline-calc { font-size: 11px; color: #5e6f8d; margin-top: 2px; }
+  .inline-calc strong { color: #1a73e8; }
+
+  .print-area { display: none; }
+
+  @media print {
+    body { background: #fff; padding: 0; font-size: 11pt; }
+    .app { max-width: none; }
+    .header, .toolbar, .form-area, .no-print, .result-tabs { display: none !important; }
+    .print-area { display: block !important; }
+    .layout { grid-template-columns: 1fr; }
+    .card { box-shadow: none; border: 0.5pt solid #999; padding: 10pt; margin-bottom: 8pt; }
+
+    .print-page { page-break-after: always; break-after: page; }
+    .print-page:last-child { page-break-after: auto; break-after: auto; }
+
+    .print-page h1 { font-size: 18pt; text-align: center; margin: 0 0 4pt 0; }
+    .print-page .print-sub { text-align: center; color: #555; font-size: 10pt; margin-bottom: 12pt; }
+    .print-page h2 { font-size: 14pt; text-align: center; margin: 0 0 10pt 0; color: #0b2b4a; }
+    .print-page .section-label { font-size: 11pt; font-weight: 600; color: #0b2b4a; margin: 8pt 0 4pt 0; }
+    .print-page table { width: 100%; border-collapse: collapse; margin-bottom: 8pt; }
+    .print-page table th, .print-page table td { border: 0.5pt solid #999; padding: 4pt 6pt; font-size: 10pt; }
+    .print-page table th { background: #f5f7fa; font-weight: 600; text-align: left; }
+    .print-page table td.num { text-align: right; }
+    .print-page .print-footer { margin-top: 20pt; padding-top: 8pt; border-top: 0.5pt solid #999; font-size: 9pt; color: #666; text-align: center; }
+    @page { size: A4; margin: 14mm 12mm; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header no-print">
+    <div>
+      <h1>📊 东华商旅 · 销售报价工具</h1>
+      <div class="sub">根据部署方式、合作模式、加价参数，自动生成标准报价与客户报价单</div>
+    </div>
+    <div style="font-size:12px;color:#8892a8;">V3.8 · DHTM-QUOTE-2026</div>
+  </div>
+
+  <div class="toolbar no-print">
+    <button class="btn btn-outline" onclick="saveDraft()">💾 保存草稿</button>
+    <button class="btn btn-primary" onclick="exportPDF()">🖨️ 打印 / 导出报价单</button>
+    <button class="btn btn-outline" onclick="resetForm()">🔄 重置</button>
+    <span class="spacer"></span>
+    <span id="statusMsg" class="status"></span>
+  </div>
+
+  <div class="layout">
+    <div class="form-area">
+
+      <div class="card">
+        <h2><span class="num">1</span>基础信息</h2>
+        <div class="form-grid">
+          <div class="fg">
+            <label>客户名称</label>
+            <input type="text" id="customerName" placeholder="终端客户名称">
+          </div>
+          <div class="fg">
+            <label>报价日期</label>
+            <input type="date" id="quoteDate">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">2</span>合作模式</h2>
+        <div class="radio-group" id="coopModeGroup">
+          <label class="radio-item selected" data-value="direct">
+            <input type="radio" name="coopMode" value="direct" checked>直销
+          </label>
+          <label class="radio-item" data-value="channel">
+            <input type="radio" name="coopMode" value="channel">渠道合作
+          </label>
+        </div>
+        <div class="fg conditional" id="channelNameField" style="margin-top:10px;">
+          <label>渠道名称</label>
+          <input type="text" id="channelName" placeholder="如 联易融">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">3</span>部署方式</h2>
+        <div class="radio-group" id="deployModeGroup">
+          <label class="radio-item selected" data-value="saas">
+            <input type="radio" name="deployMode" value="saas" checked>SaaS部署
+          </label>
+          <label class="radio-item" data-value="hybrid">
+            <input type="radio" name="deployMode" value="hybrid">混合部署
+          </label>
+          <label class="radio-item" data-value="local">
+            <input type="radio" name="deployMode" value="local">本地部署
+          </label>
+        </div>
+        <div class="form-grid" style="margin-top:10px;">
+          <div class="fg conditional" id="accountCountField">
+            <label>预计开通账户数 <span class="hint">（仅SaaS）</span></label>
+            <div class="input-unit">
+              <input type="number" id="accountCount" value="500" min="0">
+              <span class="unit">人</span>
+            </div>
+          </div>
+          <div class="fg conditional-block" id="maintenanceField" style="grid-column: 1 / -1;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="includeMaintenance" style="width:auto;">
+              <span>计入后续年度运维费（6万/年）</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">4</span>差旅规模</h2>
+        <div class="form-grid">
+          <div class="fg">
+            <label>年度差旅预算 / GMV</label>
+            <div class="input-unit">
+              <input type="number" id="annualGmv" value="600" min="0" step="0.01" oninput="updateStructDisplay()">
+              <span class="unit">万元</span>
+            </div>
+          </div>
+          <div class="fg">
+            <label>国际业务占比</label>
+            <div class="input-unit">
+              <input type="number" id="intlRatio" value="10" min="0" max="100">
+              <span class="unit">%</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="struct-header">
+            <label style="font-size:12px;font-weight:500;color:#2d3a5a;">差旅结构占比</label>
+            <span class="struct-summary">
+              占比总和：<strong id="structTotal">100%</strong>
+              <span id="structRemain" class="remain"></span>
+            </span>
+          </div>
+          <div class="struct-grid">
+            <div class="struct-slider">
+              <span class="icon-label">✈️ 机票</span>
+              <input type="range" id="structAir" min="0" max="100" value="45" oninput="onStructChange(this)">
+              <span class="val" id="structAirVal">45%<small>270万元</small></span>
+            </div>
+            <div class="struct-slider">
+              <span class="icon-label">🏨 酒店</span>
+              <input type="range" id="structHotel" min="0" max="100" value="38" oninput="onStructChange(this)">
+              <span class="val" id="structHotelVal">38%<small>228万元</small></span>
+            </div>
+            <div class="struct-slider">
+              <span class="icon-label">🚄 火车</span>
+              <input type="range" id="structTrain" min="0" max="100" value="10" oninput="onStructChange(this)">
+              <span class="val" id="structTrainVal">10%<small>60万元</small></span>
+            </div>
+            <div class="struct-slider">
+              <span class="icon-label">🚗 用车</span>
+              <input type="range" id="structCar" min="0" max="100" value="7" oninput="onStructChange(this)">
+              <span class="val" id="structCarVal">7%<small>42万元</small></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="collapse-header" onclick="toggleCollapse(this, 'estimateParams')">
+          <span>▸ 估算参数（客单价）</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="collapse-body" id="estimateParams">
+          <div class="form-grid">
+            <div class="fg">
+              <label>平均票价（元/张）</label>
+              <input type="number" id="avgAirPrice" value="1200" min="0">
+            </div>
+            <div class="fg">
+              <label>平均房价（元/间夜）</label>
+              <input type="number" id="avgHotelPrice" value="500" min="0">
+            </div>
+            <div class="fg">
+              <label>平均火车票价（元/张）</label>
+              <input type="number" id="avgTrainPrice" value="300" min="0">
+            </div>
+            <div class="fg">
+              <label>平均每单用车（元/单）</label>
+              <input type="number" id="avgCarPrice" value="100" min="0">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">5</span>结算方式</h2>
+        <div class="radio-group" id="settlementGroup">
+          <label class="radio-item selected" data-value="monthly">
+            <input type="radio" name="settlement" value="monthly" checked>企业月结（标准费率）
+          </label>
+          <label class="radio-item" data-value="prepay">
+            <input type="radio" name="settlement" value="prepay">企业预存（8折，用车免费）
+          </label>
+        </div>
+      </div>
+
+      <!-- ============ 可选增值服务 ============ -->
+      <div class="card">
+        <div class="collapse-header" onclick="toggleCollapse(this, 'valueAdded')">
+          <span>⚙️ 可选增值服务</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="collapse-body" id="valueAdded">
+
+          <div class="service-group-title">
+            通用增值服务
+          </div>
+
+          <div class="service-grid">
+
+            <div class="service-card" id="cardMultiTenant">
+              <div class="service-header">
+                <span class="service-title"><span class="icon">🏢</span>多租户部署</span>
+                <select class="service-toggle" id="multiTenant" onchange="onServiceToggle('multiTenant')">
+                  <option value="0">不需要</option>
+                  <option value="1">需要</option>
+                </select>
+              </div>
+              <div class="service-body">
+                <div class="fg">
+                  <label>子租户数量 <span class="hint">（5,000元/个）</span></label>
+                  <div class="input-unit">
+                    <input type="number" id="subTenantCount" value="3" min="0" oninput="calculate()">
+                    <span class="unit">个</span>
+                  </div>
+                  <div class="inline-calc" id="subTenantCalc">计费：15,000元</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="service-card" id="cardMultiTmc">
+              <div class="service-header">
+                <span class="service-title"><span class="icon">🔀</span>多TMC聚合比价</span>
+                <select class="service-toggle" id="needMultiTmc" onchange="onServiceToggle('needMultiTmc')">
+                  <option value="0">不需要</option>
+                  <option value="1">需要</option>
+                </select>
+              </div>
+              <div class="service-body">
+                <div class="tmc-row">
+                  <span class="tmc-label">类型A（生态已有）</span>
+                  <input type="number" id="tmcCountA" value="0" min="0" oninput="calculate()">
+                  <span class="tmc-hint">家 · 免费</span>
+                </div>
+                <div class="tmc-row">
+                  <span class="tmc-label">类型B（标准接口）</span>
+                  <input type="number" id="tmcCountB" value="0" min="0" oninput="calculate()">
+                  <span class="tmc-hint">家 · 15人天 × 1,000元</span>
+                </div>
+                <div class="tmc-row">
+                  <span class="tmc-label">类型C（定制开发）</span>
+                  <input type="number" id="tmcCountC" value="0" min="0" oninput="calculate()">
+                  <span class="tmc-hint">家 · 30人天 × 2,500元</span>
+                </div>
+                <div class="inline-calc" id="tmcCalc" style="margin-top:6px;">多TMC接入费：0元</div>
+              </div>
+            </div>
+
+            <div class="service-card" id="cardIntegration" style="grid-column: 1 / -1;">
+              <div class="service-header">
+                <span class="service-title"><span class="icon">🔌</span>接口对接</span>
+                <select class="service-toggle" id="needIntegration" onchange="onServiceToggle('needIntegration')">
+                  <option value="0">不需要</option>
+                  <option value="1">需要</option>
+                </select>
+              </div>
+              <div class="service-body">
+                <div class="sys-list">
+                  <div class="sys-item unchecked" id="sysItemFinance">
+                    <label><input type="checkbox" id="sysFinance" onchange="onSysCheck('sysItemFinance','sysFinance')"><span>财务系统</span></label>
+                    <input type="number" id="sysFinanceDays" value="15" min="0" disabled oninput="calcIntegration()">
+                    <span class="unit">人天</span>
+                  </div>
+                  <div class="sys-item unchecked" id="sysItemOA">
+                    <label><input type="checkbox" id="sysOA" onchange="onSysCheck('sysItemOA','sysOA')"><span>OA系统</span></label>
+                    <input type="number" id="sysOADays" value="10" min="0" disabled oninput="calcIntegration()">
+                    <span class="unit">人天</span>
+                  </div>
+                  <div class="sys-item unchecked" id="sysItemExpense">
+                    <label><input type="checkbox" id="sysExpense" onchange="onSysCheck('sysItemExpense','sysExpense')"><span>费控系统</span></label>
+                    <input type="number" id="sysExpenseDays" value="12" min="0" disabled oninput="calcIntegration()">
+                    <span class="unit">人天</span>
+                  </div>
+                  <div class="sys-item unchecked" id="sysItemTMC">
+                    <label><input type="checkbox" id="sysTMC" onchange="onSysCheck('sysItemTMC','sysTMC')"><span>现有商旅系统</span></label>
+                    <input type="number" id="sysTMCDays" value="10" min="0" disabled oninput="calcIntegration()">
+                    <span class="unit">人天</span>
+                  </div>
+                  <div class="sys-item unchecked" id="sysItemHR">
+                    <label><input type="checkbox" id="sysHR" onchange="onSysCheck('sysItemHR','sysHR')"><span>HR系统</span></label>
+                    <input type="number" id="sysHRDays" value="8" min="0" disabled oninput="calcIntegration()">
+                    <span class="unit">人天</span>
+                  </div>
+                  <div class="sys-item unchecked" id="sysItemERP">
+                    <label><input type="checkbox" id="sysERP" onchange="onSysCheck('sysItemERP','sysERP')"><span>ERP系统</span></label>
+                    <input type="number" id="sysERPDays" value="15" min="0" disabled oninput="calcIntegration()">
+                    <span class="unit">人天</span>
+                  </div>
+                </div>
+                <div class="inline-calc" id="integrationCalc" style="margin-top:8px;">接口对接费：0元</div>
+              </div>
+            </div>
+
+            <!-- 定制开发：仅混合/本地部署显示 -->
+            <div class="service-card" id="cardCustomDev" style="display:none;">
+              <div class="service-header">
+                <span class="service-title"><span class="icon">🛠️</span>定制开发</span>
+                <select class="service-toggle" id="needCustomDev" onchange="onServiceToggle('needCustomDev')">
+                  <option value="0">不需要</option>
+                  <option value="1">需要</option>
+                </select>
+              </div>
+              <div class="service-body">
+                <div class="fg">
+                  <label>定制开发人天</label>
+                  <div class="input-unit">
+                    <input type="number" id="customDevDays" value="20" min="0" oninput="calculate()">
+                    <span class="unit">人天</span>
+                  </div>
+                  <div class="inline-calc">2,500元/人天</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 本地化部署专属 -->
+          <div id="localServiceGroup">
+            <div class="service-group-title">
+              本地化部署专属 <span class="count-badge">仅混合/本地部署</span>
+            </div>
+            <div class="service-grid">
+
+              <div class="service-card" id="cardDataMapping">
+                <div class="service-header">
+                  <span class="service-title"><span class="icon">📋</span>数据落标</span>
+                  <select class="service-toggle" id="needDataMapping" onchange="onServiceToggle('needDataMapping')">
+                    <option value="0">不需要</option>
+                    <option value="1">需要</option>
+                  </select>
+                </div>
+                <div class="service-body">
+                  <div class="fg">
+                    <label>落标人天</label>
+                    <div class="input-unit">
+                      <input type="number" id="dataMappingDays" value="10" min="0" oninput="calculate()">
+                      <span class="unit">人天</span>
+                    </div>
+                    <div class="inline-calc">2,500元/人天</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="service-card" id="cardXinchuang">
+                <div class="service-header">
+                  <span class="service-title"><span class="icon">💻</span>信创部署支持</span>
+                  <select class="service-toggle" id="needXinchuang" onchange="onServiceToggle('needXinchuang')">
+                    <option value="0">不需要</option>
+                    <option value="1">需要</option>
+                  </select>
+                </div>
+                <div class="service-body">
+                  <div class="fg">
+                    <label>部署人天</label>
+                    <div class="input-unit">
+                      <input type="number" id="xinchuangDays" value="15" min="0" oninput="calculate()">
+                      <span class="unit">人天</span>
+                    </div>
+                    <div class="inline-calc">2,500元/人天</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="service-card" id="cardLevel3">
+                <div class="service-header">
+                  <span class="service-title"><span class="icon">🛡️</span>等保建设</span>
+                  <select class="service-toggle" id="needLevel3" onchange="onServiceToggle('needLevel3')">
+                    <option value="0">不需要</option>
+                    <option value="1">需要</option>
+                  </select>
+                </div>
+                <div class="service-body">
+                  <div class="fg">
+                    <label>建设费</label>
+                    <div class="input-unit">
+                      <input type="number" id="level3Amount" value="10" min="0" step="0.01" oninput="calculate()">
+                      <span class="unit">万元</span>
+                    </div>
+                    <div class="inline-calc">项目打包价</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card conditional-block" id="markupCard">
+        <h2><span class="num">6</span>加价参数</h2>
+        <div class="form-grid">
+          <div class="fg">
+            <label>技术服务加价率</label>
+            <div class="input-unit">
+              <input type="number" id="channelTechMarkup" value="10" min="0" step="0.1">
+              <span class="unit">%</span>
+            </div>
+          </div>
+          <div class="fg">
+            <label>差旅服务加价率</label>
+            <div class="input-unit">
+              <input type="number" id="channelTravelMarkup" value="10" min="0" step="0.1">
+              <span class="unit">%</span>
+            </div>
+          </div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-row">
+            <span class="label">预留毛利率</span>
+            <span class="value" id="channelMarginRate">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="result-area no-print">
+
+      <div class="card">
+        <h2><span class="num">📋</span>实时报价结果</h2>
+
+        <div class="result-tabs">
+          <div class="result-tab active" data-tab="settle" onclick="switchTab('settle')">标准报价</div>
+          <div class="result-tab" data-tab="quote" onclick="switchTab('quote')">客户报价</div>
+          <div class="result-tab" data-tab="margin" onclick="switchTab('margin')">毛利分析</div>
+        </div>
+
+        <div id="tab-settle">
+          <div style="font-size:13px;font-weight:600;color:#0b2b4a;margin-bottom:6px;">一、技术服务费</div>
+          <table class="result-table">
+            <thead><tr>
+              <th style="width:32%;">费用项目</th>
+              <th style="width:20%;">收费标准</th>
+              <th style="width:22%;">3年TCO</th>
+              <th style="width:26%;">说明</th>
+            </tr></thead>
+            <tbody id="settleTechBody"></tbody>
+            <tfoot id="settleTechFoot"></tfoot>
+          </table>
+
+          <div style="font-size:13px;font-weight:600;color:#0b2b4a;margin:14px 0 6px 0;">二、差旅服务费</div>
+          <table class="result-table">
+            <thead><tr>
+              <th style="width:32%;">费用项目</th>
+              <th style="width:20%;">收费标准</th>
+              <th style="width:22%;">预计总收益</th>
+              <th style="width:26%;">说明</th>
+            </tr></thead>
+            <tbody id="settleTravelBody"></tbody>
+            <tfoot id="settleTravelFoot"></tfoot>
+          </table>
+
+          <div class="summary-box" style="margin-top:8px;">
+            <div class="summary-row total">
+              <span class="label">标准报价合计</span>
+              <span class="value" id="settleGrandTotal">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-quote" style="display:none;">
+          <div style="font-size:13px;font-weight:600;color:#0b2b4a;margin-bottom:6px;">一、技术服务费</div>
+          <table class="result-table">
+            <thead><tr>
+              <th style="width:32%;">费用项目</th>
+              <th style="width:20%;">收费标准</th>
+              <th style="width:22%;">3年TCO</th>
+              <th style="width:26%;">说明</th>
+            </tr></thead>
+            <tbody id="quoteTechBody"></tbody>
+            <tfoot id="quoteTechFoot"></tfoot>
+          </table>
+
+          <div style="font-size:13px;font-weight:600;color:#0b2b4a;margin:14px 0 6px 0;">二、差旅服务费</div>
+          <table class="result-table">
+            <thead><tr>
+              <th style="width:32%;">费用项目</th>
+              <th style="width:20%;">收费标准</th>
+              <th style="width:22%;">预计总收益</th>
+              <th style="width:26%;">说明</th>
+            </tr></thead>
+            <tbody id="quoteTravelBody"></tbody>
+            <tfoot id="quoteTravelFoot"></tfoot>
+          </table>
+
+          <div class="summary-box" style="margin-top:8px;">
+            <div class="summary-row total">
+              <span class="label">客户报价合计</span>
+              <span class="value" id="quoteGrandTotal">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-margin" style="display:none;">
+          <table class="result-table">
+            <thead><tr><th style="width:35%;">项目</th><th style="width:20%;">标准报价</th><th style="width:20%;">客户报价</th><th style="width:25%;">毛利</th></tr></thead>
+            <tbody id="marginBody"></tbody>
+            <tfoot id="marginFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="num">💰</span>费用速览</h2>
+        <div class="summary-box">
+          <div class="summary-row">
+            <span class="label">技术服务费（标准报价）</span>
+            <span class="value" id="quickTechSettle">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">差旅服务费（标准报价）</span>
+            <span class="value" id="quickTravelSettle">—</span>
+          </div>
+          <div class="summary-row total">
+            <span class="label">标准报价合计</span>
+            <span class="value" id="quickTotalSettle">—</span>
+          </div>
+          <div class="summary-row" id="quickQuoteRow" style="margin-top:6px;">
+            <span class="label">客户报价合计</span>
+            <span class="value orange" id="quickTotalQuote">—</span>
+          </div>
+          <div class="summary-row" id="quickMarginRow">
+            <span class="label">毛利合计</span>
+            <span class="value green" id="quickTotalMargin">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="printArea" class="print-area"></div>
+
+</div>
+
+<script>
+function $(id) { return document.getElementById(id); }
+function fmt(n, d) { d = d === undefined ? 2 : d; return Number(n).toLocaleString('zh-CN', {minimumFractionDigits:d, maximumFractionDigits:d}); }
+function fmtInt(n) { return Math.round(n).toLocaleString('zh-CN'); }
+
+function showStatus(msg, isError) {
+  const el = $('statusMsg');
+  el.textContent = msg;
+  el.className = 'status' + (isError ? ' error' : '');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.textContent = ''; }, 4000);
+}
+
+function toggleCollapse(header, bodyId) {
+  const body = $(bodyId);
+  header.classList.toggle('open');
+  body.classList.toggle('show');
+}
+
+function getVal(id) {
+  const el = $(id);
+  if (!el) return '';
+  return el.value === '' ? '' : el.value;
+}
+function getNum(id, def) {
+  const v = parseFloat($(id).value);
+  return isNaN(v) ? (def || 0) : v;
+}
+function getCoopMode() {
+  const checked = document.querySelector('input[name="coopMode"]:checked');
+  return checked ? checked.value : 'direct';
+}
+function getDeployMode() {
+  const checked = document.querySelector('input[name="deployMode"]:checked');
+  return checked ? checked.value : 'saas';
+}
+function getSettlement() {
+  const checked = document.querySelector('input[name="settlement"]:checked');
+  return checked ? checked.value : 'monthly';
+}
+function isLocalDeploy() {
+  const m = getDeployMode();
+  return m === 'hybrid' || m === 'local';
+}
+
+function onServiceToggle(toggleId) {
+  const el = $(toggleId);
+  const card = el.closest('.service-card');
+  if (el.value === '1') {
+    card.classList.add('active');
+  } else {
+    card.classList.remove('active');
+  }
+  if (toggleId === 'needIntegration') {
+    if (el.value === '0') {
+      ['sysFinance','sysOA','sysExpense','sysTMC','sysHR','sysERP'].forEach(sysId => {
+        const cb = $(sysId);
+        cb.checked = false;
+        cb.disabled = true;
+        const days = $(sysId + 'Days');
+        if (days) days.disabled = true;
+        cb.closest('.sys-item').classList.remove('checked');
+        cb.closest('.sys-item').classList.add('unchecked');
+      });
+      calcIntegration();
+    } else {
+      ['sysFinance','sysOA','sysExpense','sysTMC','sysHR','sysERP'].forEach(sysId => {
+        const cb = $(sysId);
+        cb.disabled = false;
+        const days = $(sysId + 'Days');
+        if (days) days.disabled = !cb.checked;
+      });
+    }
+  }
+  calculate();
+}
+
+function onSysCheck(itemId, checkId) {
+  const cb = $(checkId);
+  const item = $(itemId);
+  const days = $(checkId + 'Days');
+  if (cb.checked) {
+    item.classList.add('checked');
+    item.classList.remove('unchecked');
+    if (days) days.disabled = false;
+  } else {
+    item.classList.remove('checked');
+    item.classList.add('unchecked');
+    if (days) days.disabled = true;
+  }
+  calcIntegration();
+  calculate();
+}
+
+function calcIntegration() {
+  let totalDays = 0;
+  if ($('sysFinance').checked) totalDays += getNum('sysFinanceDays', 15);
+  if ($('sysOA').checked) totalDays += getNum('sysOADays', 10);
+  if ($('sysExpense').checked) totalDays += getNum('sysExpenseDays', 12);
+  if ($('sysTMC').checked) totalDays += getNum('sysTMCDays', 10);
+  if ($('sysHR').checked) totalDays += getNum('sysHRDays', 8);
+  if ($('sysERP').checked) totalDays += getNum('sysERPDays', 15);
+  const fee = totalDays * 2500;
+  $('integrationCalc').textContent = '接口对接费：' + fmt(fee, 0) + '元（' + totalDays + '人天 × 2,500元）';
+  return { totalDays, fee };
+}
+
+const structIds = ['structAir', 'structHotel', 'structTrain', 'structCar'];
+
+function onStructChange(triggerEl) {
+  let vals = structIds.map(id => parseInt($(id).value) || 0);
+  const idx = structIds.indexOf(triggerEl.id);
+  let otherSum = 0;
+  for (let i = 0; i < vals.length; i++) {
+    if (i !== idx) otherSum += vals[i];
+  }
+  let maxAllowed = 100 - otherSum;
+  if (maxAllowed < 0) maxAllowed = 0;
+  let currentVal = parseInt(triggerEl.value) || 0;
+  if (currentVal > maxAllowed) triggerEl.value = maxAllowed;
+  updateStructDisplay();
+}
+
+function updateStructDisplay() {
+  const annualGmv = getNum('annualGmv', 0);
+  let total = 0;
+  structIds.forEach(id => {
+    const val = parseInt($(id).value) || 0;
+    const amount = annualGmv * val / 100;
+    const amountText = annualGmv > 0 ? `<small>${amount.toFixed(1)}万元</small>` : '<small>—</small>';
+    $(id + 'Val').innerHTML = val + '%' + amountText;
+    total += val;
+  });
+  $('structTotal').innerText = total + '%';
+  const remain = 100 - total;
+  const remainSpan = $('structRemain');
+  if (remain > 0) {
+    remainSpan.innerText = `剩余 ${remain}%`;
+    remainSpan.className = 'remain';
+  } else if (remain === 0) {
+    remainSpan.innerText = '✅ 已满';
+    remainSpan.className = 'remain';
+  } else {
+    remainSpan.innerText = `⚠️ 超出 ${Math.abs(remain)}%`;
+    remainSpan.className = 'remain over';
+  }
+}
+
+function updateVisibility() {
+  const coop = getCoopMode();
+  const deploy = getDeployMode();
+  const isChannel = coop === 'channel';
+  const isSaaS = deploy === 'saas';
+  const isLocal = isLocalDeploy();
+
+  $('channelNameField').classList.toggle('show', isChannel);
+  $('markupCard').classList.toggle('show', isChannel);
+  $('accountCountField').classList.toggle('show', isSaaS);
+  $('maintenanceField').classList.toggle('show', isLocal);
+  $('localServiceGroup').style.display = isLocal ? 'block' : 'none';
+
+  // SaaS部署不支持定制开发
+  const customDevCard = $('cardCustomDev');
+  customDevCard.style.display = isSaaS ? 'none' : '';
+  // 若切换到SaaS时定制开发已选中，则重置
+  if (isSaaS && $('needCustomDev').value === '1') {
+    $('needCustomDev').value = '0';
+    customDevCard.classList.remove('active');
+  }
+
+  document.querySelector('.result-tab[data-tab="quote"]').style.display = isChannel ? '' : 'none';
+  document.querySelector('.result-tab[data-tab="margin"]').style.display = isChannel ? '' : 'none';
+  $('quickQuoteRow').style.display = isChannel ? '' : 'none';
+  $('quickMarginRow').style.display = isChannel ? '' : 'none';
+
+  if (!isChannel) {
+    const activeTab = document.querySelector('.result-tab.active');
+    if (activeTab && activeTab.dataset.tab !== 'settle') switchTab('settle');
+  }
+}
+
+function getSaasAnnualFee(accountCount) {
+  if (accountCount <= 0) return 0;
+  if (accountCount <= 100) return 5000;
+  if (accountCount <= 500) return 10000;
+  if (accountCount <= 2000) return 30000;
+  if (accountCount <= 10000) return 80000;
+  return 0;
+}
+
+function calculate() {
+  const coop = getCoopMode();
+  const deploy = getDeployMode();
+  const settlement = getSettlement();
+  const isChannel = coop === 'channel';
+  const isSaaS = deploy === 'saas';
+  const isLocal = isLocalDeploy();
+
+  const accountCount = getNum('accountCount', 0);
+  const annualGmv = getNum('annualGmv', 0);
+  const intlRatio = getNum('intlRatio', 0) / 100;
+
+  const structAir = getNum('structAir', 0);
+  const structHotel = getNum('structHotel', 0);
+  const structTrain = getNum('structTrain', 0);
+  const structCar = getNum('structCar', 0);
+
+  const avgAirPrice = getNum('avgAirPrice', 1200);
+  const avgHotelPrice = getNum('avgHotelPrice', 500);
+  const avgTrainPrice = getNum('avgTrainPrice', 300);
+  const avgCarPrice = getNum('avgCarPrice', 100);
+
+  const techItems = [];
+  let techTotal = 0;
+  let techTco3y = 0;
+
+  if (isSaaS) {
+    const saasFee = getSaasAnnualFee(accountCount);
+    if (saasFee > 0) {
+      techItems.push({ name: 'SaaS订阅年费', amount: saasFee, tco: saasFee * 3, note: accountCount + '账户 · 阶梯定价 · 年度' });
+      techTotal += saasFee;
+      techTco3y += saasFee * 3;
+    } else {
+      techItems.push({ name: 'SaaS订阅年费', amount: 0, tco: 0, note: '面议（' + accountCount + '账户）' });
+    }
+  } else {
+    techItems.push({ name: '产品许可费（本地化部署）', amount: 500000, tco: 500000, note: '一次性' });
+    techTotal += 500000;
+    techTco3y += 500000;
+    if ($('includeMaintenance').checked) {
+      techItems.push({ name: '年度运维费（第2-3年）', amount: 60000, tco: 120000, note: '6万/年 · 首年免费' });
+      techTotal += 60000;
+      techTco3y += 120000;
+    } else {
+      techItems.push({ name: '年度运维费', amount: 0, tco: 0, note: '首年免费，后续按需' });
+    }
+  }
+
+  if (getVal('multiTenant') === '1') {
+    techItems.push({ name: '多租户部署费', amount: 100000, tco: 100000, note: '一次性' });
+    techTotal += 100000;
+    techTco3y += 100000;
+    const subCount = getNum('subTenantCount', 0);
+    if (subCount > 0) {
+      const subFee = subCount * 5000;
+      techItems.push({ name: '子租户配置费', amount: subFee, tco: subFee, note: subCount + '个 × 5,000元/个' });
+      techTotal += subFee;
+      techTco3y += subFee;
+      $('subTenantCalc').textContent = '计费：' + fmt(subFee, 0) + '元';
+    } else {
+      $('subTenantCalc').textContent = '计费：0元';
+    }
+  }
+
+  if (getVal('needMultiTmc') === '1') {
+    const tmcB = getNum('tmcCountB', 0);
+    const tmcC = getNum('tmcCountC', 0);
+    let tmcTotal = 0;
+    if (tmcB > 0) {
+      const fee = tmcB * 15 * 1000;
+      techItems.push({ name: '多TMC接入费（类型B）', amount: fee, tco: fee, note: tmcB + '家 × 15人天 × 1,000元' });
+      techTotal += fee;
+      techTco3y += fee;
+      tmcTotal += fee;
+    }
+    if (tmcC > 0) {
+      const fee = tmcC * 30 * 2500;
+      techItems.push({ name: '多TMC接入费（类型C）', amount: fee, tco: fee, note: tmcC + '家 × 30人天 × 2,500元' });
+      techTotal += fee;
+      techTco3y += fee;
+      tmcTotal += fee;
+    }
+    $('tmcCalc').textContent = '多TMC接入费：' + fmt(tmcTotal, 0) + '元';
+  } else {
+    $('tmcCalc').textContent = '多TMC接入费：0元';
+  }
+
+  if (getVal('needIntegration') === '1') {
+    const integrationResult = calcIntegration();
+    if (integrationResult.totalDays > 0) {
+      const systems = [];
+      if ($('sysFinance').checked) systems.push('财务' + getNum('sysFinanceDays', 15));
+      if ($('sysOA').checked) systems.push('OA' + getNum('sysOADays', 10));
+      if ($('sysExpense').checked) systems.push('费控' + getNum('sysExpenseDays', 12));
+      if ($('sysTMC').checked) systems.push('商旅' + getNum('sysTMCDays', 10));
+      if ($('sysHR').checked) systems.push('HR' + getNum('sysHRDays', 8));
+      if ($('sysERP').checked) systems.push('ERP' + getNum('sysERPDays', 15));
+      const fee = integrationResult.fee;
+      techItems.push({ name: '接口对接费', amount: fee, tco: fee, note: systems.join(' / ') + '（人天）' });
+      techTotal += fee;
+      techTco3y += fee;
+    }
+  }
+
+  // 定制开发：仅非SaaS显示且计入
+  if (!isSaaS && getVal('needCustomDev') === '1') {
+    const days = getNum('customDevDays', 0);
+    const fee = days * 2500;
+    techItems.push({ name: '定制开发费', amount: fee, tco: fee, note: days + '人天 × 2,500元' });
+    techTotal += fee;
+    techTco3y += fee;
+  }
+
+  if (isLocal && getVal('needDataMapping') === '1') {
+    const days = getNum('dataMappingDays', 0);
+    const fee = days * 2500;
+    techItems.push({ name: '数据落标费', amount: fee, tco: fee, note: days + '人天 × 2,500元' });
+    techTotal += fee;
+    techTco3y += fee;
+  }
+  if (isLocal && getVal('needXinchuang') === '1') {
+    const days = getNum('xinchuangDays', 0);
+    const fee = days * 2500;
+    techItems.push({ name: '信创部署支持费', amount: fee, tco: fee, note: days + '人天 × 2,500元' });
+    techTotal += fee;
+    techTco3y += fee;
+  }
+  if (isLocal && getVal('needLevel3') === '1') {
+    const amount = getNum('level3Amount', 0) * 10000;
+    techItems.push({ name: '等保建设费', amount: amount, tco: amount, note: '项目打包' });
+    techTotal += amount;
+    techTco3y += amount;
+  }
+
+  const travelItems = [];
+  let travelTotal = 0;
+
+  const gmvAir = annualGmv * structAir / 100;
+  const gmvHotel = annualGmv * structHotel / 100;
+  const gmvTrain = annualGmv * structTrain / 100;
+  const gmvCar = annualGmv * structCar / 100;
+
+  const airTickets = avgAirPrice > 0 ? gmvAir / (avgAirPrice / 10000) : 0;
+  const hotelNights = avgHotelPrice > 0 ? gmvHotel / (avgHotelPrice / 10000) : 0;
+  const trainTickets = avgTrainPrice > 0 ? gmvTrain / (avgTrainPrice / 10000) : 0;
+  const carOrders = avgCarPrice > 0 ? gmvCar / (avgCarPrice / 10000) : 0;
+
+  const airIntl = airTickets * intlRatio;
+  const airDomestic = airTickets - airIntl;
+  const airIntlIntra = airIntl * 0.6;
+  const airIntlInter = airIntl * 0.4;
+
+  const hotelIntl = hotelNights * intlRatio;
+  const hotelDomestic = hotelNights - hotelIntl;
+
+  const isPrepay = settlement === 'prepay';
+  const discount = isPrepay ? 0.8 : 1;
+
+  const feeAirDomestic = 10 * discount;
+  const feeAirIntra = 20 * discount;
+  const feeAirInter = 30 * discount;
+  const feeHotelDomestic = 5 * discount;
+  const feeHotelIntl = 20 * discount;
+  const feeTrain = 5 * discount;
+  const feeCar = isPrepay ? 0 : 1;
+
+  if (airDomestic > 0) {
+    const fee = airDomestic * feeAirDomestic;
+    travelItems.push({ name: '国内机票服务费', fee: feeAirDomestic, unit: '元/张', qty: fmtInt(airDomestic) + '张', amount: fee });
+    travelTotal += fee;
+  }
+  if (airIntlIntra > 0) {
+    const fee = airIntlIntra * feeAirIntra;
+    travelItems.push({ name: '国际机票（洲际内）', fee: feeAirIntra, unit: '元/段', qty: fmtInt(airIntlIntra) + '段', amount: fee });
+    travelTotal += fee;
+  }
+  if (airIntlInter > 0) {
+    const fee = airIntlInter * feeAirInter;
+    travelItems.push({ name: '国际机票（跨洲际）', fee: feeAirInter, unit: '元/段', qty: fmtInt(airIntlInter) + '段', amount: fee });
+    travelTotal += fee;
+  }
+  if (hotelDomestic > 0) {
+    const fee = hotelDomestic * feeHotelDomestic;
+    travelItems.push({ name: '国内酒店服务费', fee: feeHotelDomestic, unit: '元/间夜', qty: fmtInt(hotelDomestic) + '间夜', amount: fee });
+    travelTotal += fee;
+  }
+  if (hotelIntl > 0) {
+    const fee = hotelIntl * feeHotelIntl;
+    travelItems.push({ name: '国际酒店服务费', fee: feeHotelIntl, unit: '元/间夜', qty: fmtInt(hotelIntl) + '间夜', amount: fee });
+    travelTotal += fee;
+  }
+  if (trainTickets > 0) {
+    const fee = trainTickets * feeTrain;
+    travelItems.push({ name: '火车票服务费', fee: feeTrain, unit: '元/张', qty: fmtInt(trainTickets) + '张', amount: fee });
+    travelTotal += fee;
+  }
+  if (carOrders > 0) {
+    const fee = carOrders * feeCar;
+    travelItems.push({ name: '用车服务费', fee: feeCar, unit: '元/单', qty: fmtInt(carOrders) + '单', amount: fee });
+    travelTotal += fee;
+  }
+
+  const techMarkup = isChannel ? getNum('channelTechMarkup', 0) : 0;
+  const travelMarkup = isChannel ? getNum('channelTravelMarkup', 0) : 0;
+
+  const techQuote = techTotal * (1 + techMarkup / 100);
+  const techQuoteTco = techTco3y * (1 + techMarkup / 100);
+  const travelQuote = travelTotal * (1 + travelMarkup / 100);
+  const totalSettle = techTotal + travelTotal;
+  const totalQuote = techQuote + travelQuote;
+  const totalMargin = totalQuote - totalSettle;
+  const marginRate = totalQuote > 0 ? totalMargin / totalQuote * 100 : 0;
+
+  updateSettleTables(techItems, travelItems, techTotal, techTco3y, travelTotal);
+  updateQuoteTables(techItems, travelItems, techMarkup, travelMarkup, techQuote, techQuoteTco, travelQuote);
+  updateMarginTable(techTotal, travelTotal, techQuote, travelQuote, totalSettle, totalQuote, totalMargin);
+
+  $('settleGrandTotal').textContent = fmt(totalSettle, 0) + ' 元';
+  $('quoteGrandTotal').textContent = fmt(totalQuote, 0) + ' 元';
+  $('quickTechSettle').textContent = fmt(techTotal, 0) + ' 元';
+  $('quickTravelSettle').textContent = fmt(travelTotal, 0) + ' 元';
+  $('quickTotalSettle').textContent = fmt(totalSettle, 0) + ' 元';
+  $('quickTotalQuote').textContent = fmt(totalQuote, 0) + ' 元';
+  $('quickTotalMargin').textContent = fmt(totalMargin, 0) + ' 元';
+  $('channelMarginRate').textContent = isChannel ? fmt(marginRate, 1) + '%' : '—';
+
+  renderPrintArea({
+    coop, deploy, settlement, accountCount, annualGmv, intlRatio,
+    structAir, structHotel, structTrain, structCar,
+    techItems, travelItems, techTotal, techTco3y, travelTotal,
+    techMarkup, travelMarkup, techQuote, techQuoteTco, travelQuote,
+    totalSettle, totalQuote, totalMargin, marginRate,
+    isChannel, isLocal, isSaaS,
+    customerName: getVal('customerName'),
+    channelName: getVal('channelName'),
+    quoteDate: getVal('quoteDate')
+  });
+}
+
+function updateSettleTables(techItems, travelItems, techTotal, techTco3y, travelTotal) {
+  let techHtml = '';
+  techItems.forEach(item => {
+    techHtml += `<tr><td>${item.name}</td><td class="num">${fmt(item.amount, 0)} 元</td><td class="num">${fmt(item.tco, 0)} 元</td><td style="font-size:11px;color:#5e6f8d;">${item.note}</td></tr>`;
+  });
+  $('settleTechBody').innerHTML = techHtml;
+  $('settleTechFoot').innerHTML = `<tr class="subtotal-row"><td><strong>技术服务费小计</strong></td><td class="num"><strong>${fmt(techTotal, 0)} 元</strong></td><td class="num"><strong>${fmt(techTco3y, 0)} 元</strong></td><td></td></tr>`;
+
+  let travelHtml = '';
+  travelItems.forEach(item => {
+    travelHtml += `<tr><td>${item.name}</td><td class="num">${fmt(item.fee, 2)} ${item.unit}</td><td class="num">${fmt(item.amount, 0)} 元</td><td style="font-size:11px;color:#5e6f8d;">${item.qty}</td></tr>`;
+  });
+  $('settleTravelBody').innerHTML = travelHtml;
+  $('settleTravelFoot').innerHTML = `<tr class="subtotal-row"><td><strong>差旅服务费小计</strong></td><td class="num" style="color:#8892a8;">—</td><td class="num"><strong>${fmt(travelTotal, 0)} 元</strong></td><td></td></tr>`;
+}
+
+function updateQuoteTables(techItems, travelItems, techMarkup, travelMarkup, techQuote, techQuoteTco, travelQuote) {
+  let techHtml = '';
+  techItems.forEach(item => {
+    const quoted = item.amount * (1 + techMarkup / 100);
+    const quotedTco = item.tco * (1 + techMarkup / 100);
+    techHtml += `<tr><td>${item.name}</td><td class="num">${fmt(quoted, 0)} 元</td><td class="num">${fmt(quotedTco, 0)} 元</td><td style="font-size:11px;color:#5e6f8d;">${item.note}</td></tr>`;
+  });
+  $('quoteTechBody').innerHTML = techHtml;
+  $('quoteTechFoot').innerHTML = `<tr class="subtotal-row"><td><strong>技术服务费小计</strong></td><td class="num"><strong>${fmt(techQuote, 0)} 元</strong></td><td class="num"><strong>${fmt(techQuoteTco, 0)} 元</strong></td><td></td></tr>`;
+
+  let travelHtml = '';
+  travelItems.forEach(item => {
+    const quotedFee = item.fee * (1 + travelMarkup / 100);
+    const quotedAmount = item.amount * (1 + travelMarkup / 100);
+    travelHtml += `<tr><td>${item.name}</td><td class="num">${fmt(quotedFee, 2)} ${item.unit}</td><td class="num">${fmt(quotedAmount, 0)} 元</td><td style="font-size:11px;color:#5e6f8d;">${item.qty}</td></tr>`;
+  });
+  $('quoteTravelBody').innerHTML = travelHtml;
+  $('quoteTravelFoot').innerHTML = `<tr class="subtotal-row"><td><strong>差旅服务费小计</strong></td><td class="num" style="color:#8892a8;">—</td><td class="num"><strong>${fmt(travelQuote, 0)} 元</strong></td><td></td></tr>`;
+}
+
+function updateMarginTable(techTotal, travelTotal, techQuote, travelQuote, totalSettle, totalQuote, totalMargin) {
+  const techMargin = techQuote - techTotal;
+  const travelMargin = travelQuote - travelTotal;
+  const techRate = techQuote > 0 ? techMargin / techQuote * 100 : 0;
+  const travelRate = travelQuote > 0 ? travelMargin / travelQuote * 100 : 0;
+
+  let html = `<tr><td>技术服务费</td><td class="num">${fmt(techTotal, 0)}</td><td class="num">${fmt(techQuote, 0)}</td><td class="num">${fmt(techMargin, 0)}（${fmt(techRate, 1)}%）</td></tr>`;
+  html += `<tr><td>差旅服务费</td><td class="num">${fmt(travelTotal, 0)}</td><td class="num">${fmt(travelQuote, 0)}</td><td class="num">${fmt(travelMargin, 0)}（${fmt(travelRate, 1)}%）</td></tr>`;
+  $('marginBody').innerHTML = html;
+  $('marginFoot').innerHTML = `<tr class="subtotal-row"><td><strong>合计</strong></td><td class="num"><strong>${fmt(totalSettle, 0)}</strong></td><td class="num"><strong>${fmt(totalQuote, 0)}</strong></td><td class="num"><strong>${fmt(totalMargin, 0)}</strong></td></tr>`;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.result-tab').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
+  document.querySelectorAll('#tab-settle, #tab-quote, #tab-margin').forEach(el => el.style.display = 'none');
+  $('tab-' + tab).style.display = 'block';
+}
+
+function renderPrintArea(d) {
+  const esc = (v) => String(v || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const quoteNo = 'DHTM-QT-' + Date.now().toString().slice(-8);
+  const today = new Date();
+  const dateStr = today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
+
+  const deployLabel = d.deploy === 'saas' ? '公有云SaaS部署' : d.deploy === 'hybrid' ? '混合部署' : '本地部署';
+  const coopLabel = d.isChannel ? '渠道合作' : '直销';
+  const infoBlock = `
+    <table>
+      <tr><th style="width:25%;">客户名称</th><td>${esc(d.customerName) || '—'}</td><th style="width:25%;">渠道名称</th><td>${esc(d.channelName) || '—'}</td></tr>
+      <tr><th>部署方式</th><td>${deployLabel}</td><th>合作模式</th><td>${coopLabel}</td></tr>
+      <tr><th>年度差旅量</th><td>${fmt(d.annualGmv, 0)} 万元</td><th>结算方式</th><td>${d.settlement === 'prepay' ? '企业预存（8折）' : '企业月结'}</td></tr>
+    </table>`;
+
+  let page1 = `
+    <div class="print-page">
+      <h1>东华商旅 · 差旅服务及SaaS平台报价单</h1>
+      <div class="print-sub">报价单编号：${quoteNo}　|　报价日期：${esc(d.quoteDate) || dateStr}</div>
+      <h2>标准报价（东华 → ${d.isChannel ? '渠道' : '客户'}）</h2>
+      ${infoBlock}
+
+      <div class="section-label">一、技术服务费</div>
+      <table>
+        <thead><tr>
+          <th style="width:32%;">费用项目</th>
+          <th style="width:20%;">收费标准</th>
+          <th style="width:22%;">3年TCO</th>
+          <th style="width:26%;">说明</th>
+        </tr></thead>
+        <tbody>`;
+
+  d.techItems.forEach(item => {
+    page1 += `<tr><td>${esc(item.name)}</td><td class="num">${fmt(item.amount, 0)}</td><td class="num">${fmt(item.tco, 0)}</td><td style="font-size:10px;">${esc(item.note)}</td></tr>`;
+  });
+  page1 += `<tr style="background:#fafbfd;"><td><strong>技术服务费小计</strong></td><td class="num"><strong>${fmt(d.techTotal, 0)}</strong></td><td class="num"><strong>${fmt(d.techTco3y, 0)}</strong></td><td></td></tr>`;
+  page1 += `</tbody></table>`;
+
+  page1 += `<div class="section-label">二、差旅服务费</div>
+      <table>
+        <thead><tr>
+          <th style="width:32%;">费用项目</th>
+          <th style="width:20%;">收费标准</th>
+          <th style="width:22%;">预计总收益</th>
+          <th style="width:26%;">说明</th>
+        </tr></thead>
+        <tbody>`;
+  d.travelItems.forEach(item => {
+    page1 += `<tr><td>${esc(item.name)}</td><td class="num">${fmt(item.fee, 2)} ${item.unit}</td><td class="num">${fmt(item.amount, 0)}</td><td style="font-size:10px;">${item.qty}</td></tr>`;
+  });
+  page1 += `<tr style="background:#fafbfd;"><td><strong>差旅服务费小计</strong></td><td class="num">—</td><td class="num"><strong>${fmt(d.travelTotal, 0)}</strong></td><td></td></tr>`;
+  page1 += `</tbody></table>`;
+
+  page1 += `<table><tr style="background:#f0f3f8;"><td style="width:32%;"><strong>标准报价合计</strong></td><td class="num" style="width:20%;">—</td><td class="num" style="width:22%;"><strong>${fmt(d.totalSettle, 0)}</strong></td><td style="width:26%;"></td></tr></table>`;
+
+  page1 += `<div class="print-footer">
+        东华商旅 · 让每一次因公出行，都更有价值　|　报价单编号：${quoteNo}　|　打印时间：${new Date().toLocaleString('zh-CN')}　|　第1页
+      </div>
+    </div>`;
+
+  let html = page1;
+
+  if (d.isChannel) {
+    let page2 = `
+      <div class="print-page">
+        <h2>客户报价参考（渠道 → 终端客户）</h2>
+        <div class="print-sub">报价单编号：${quoteNo}　|　报价日期：${esc(d.quoteDate) || dateStr}</div>
+        ${infoBlock}
+
+        <div class="section-label">一、技术服务费</div>
+        <table>
+          <thead><tr>
+            <th style="width:32%;">费用项目</th>
+            <th style="width:20%;">收费标准</th>
+            <th style="width:22%;">3年TCO</th>
+            <th style="width:26%;">说明</th>
+          </tr></thead>
+          <tbody>`;
+    d.techItems.forEach(item => {
+      const quoted = item.amount * (1 + d.techMarkup / 100);
+      const quotedTco = item.tco * (1 + d.techMarkup / 100);
+      page2 += `<tr><td>${esc(item.name)}</td><td class="num">${fmt(quoted, 0)}</td><td class="num">${fmt(quotedTco, 0)}</td><td style="font-size:10px;">${esc(item.note)}</td></tr>`;
+    });
+    page2 += `<tr style="background:#fafbfd;"><td><strong>技术服务费小计</strong></td><td class="num"><strong>${fmt(d.techQuote, 0)}</strong></td><td class="num"><strong>${fmt(d.techQuoteTco, 0)}</strong></td><td></td></tr>`;
+    page2 += `</tbody></table>`;
+
+    page2 += `<div class="section-label">二、差旅服务费</div>
+        <table>
+          <thead><tr>
+            <th style="width:32%;">费用项目</th>
+            <th style="width:20%;">收费标准</th>
+            <th style="width:22%;">预计总收益</th>
+            <th style="width:26%;">说明</th>
+          </tr></thead>
+          <tbody>`;
+    d.travelItems.forEach(item => {
+      const quotedFee = item.fee * (1 + d.travelMarkup / 100);
+      const quotedAmount = item.amount * (1 + d.travelMarkup / 100);
+      page2 += `<tr><td>${esc(item.name)}</td><td class="num">${fmt(quotedFee, 2)} ${item.unit}</td><td class="num">${fmt(quotedAmount, 0)}</td><td style="font-size:10px;">${item.qty}</td></tr>`;
+    });
+    page2 += `<tr style="background:#fafbfd;"><td><strong>差旅服务费小计</strong></td><td class="num">—</td><td class="num"><strong>${fmt(d.travelQuote, 0)}</strong></td><td></td></tr>`;
+    page2 += `</tbody></table>`;
+
+    page2 += `<table><tr style="background:#f0f3f8;"><td style="width:32%;"><strong>客户报价合计</strong></td><td class="num" style="width:20%;">—</td><td class="num" style="width:22%;"><strong>${fmt(d.totalQuote, 0)}</strong></td><td style="width:26%;"></td></tr></table>`;
+
+    page2 += `<div class="print-footer">
+          东华商旅 · 让每一次因公出行，都更有价值　|　报价单编号：${quoteNo}　|　打印时间：${new Date().toLocaleString('zh-CN')}　|　第2页
+        </div>
+      </div>`;
+    html += page2;
+  }
+
+  if (d.isChannel) {
+    const techMargin = d.techQuote - d.techTotal;
+    const travelMargin = d.travelQuote - d.travelTotal;
+    const techRate = d.techQuote > 0 ? techMargin / d.techQuote * 100 : 0;
+    const travelRate = d.travelQuote > 0 ? travelMargin / d.travelQuote * 100 : 0;
+
+    let page3 = `
+      <div class="print-page">
+        <h2>毛利分析（内部参考）</h2>
+        <div class="print-sub">报价单编号：${quoteNo}　|　报价日期：${esc(d.quoteDate) || dateStr}</div>
+        ${infoBlock}
+
+        <table>
+          <thead><tr>
+            <th style="width:28%;">项目</th>
+            <th style="width:18%;">标准报价</th>
+            <th style="width:18%;">客户报价</th>
+            <th style="width:18%;">毛利</th>
+            <th style="width:18%;">毛利率</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>技术服务费</td><td class="num">${fmt(d.techTotal, 0)}</td><td class="num">${fmt(d.techQuote, 0)}</td><td class="num">${fmt(techMargin, 0)}</td><td class="num">${fmt(techRate, 1)}%</td></tr>
+            <tr><td>差旅服务费</td><td class="num">${fmt(d.travelTotal, 0)}</td><td class="num">${fmt(d.travelQuote, 0)}</td><td class="num">${fmt(travelMargin, 0)}</td><td class="num">${fmt(travelRate, 1)}%</td></tr>
+          </tbody>
+          <tfoot>
+            <tr style="background:#f0f3f8;"><td><strong>合计</strong></td><td class="num"><strong>${fmt(d.totalSettle, 0)}</strong></td><td class="num"><strong>${fmt(d.totalQuote, 0)}</strong></td><td class="num"><strong>${fmt(d.totalMargin, 0)}</strong></td><td class="num"><strong>${fmt(d.marginRate, 1)}%</strong></td></tr>
+          </tfoot>
+        </table>
+
+        <div style="margin-top:16pt;font-size:9pt;color:#666;">
+          <strong>说明：</strong>本页为渠道毛利分析，仅供内部参考，不建议随客户报价单一同发送给终端客户。
+        </div>
+
+        <div class="print-footer">
+          东华商旅 · 让每一次因公出行，都更有价值　|　报价单编号：${quoteNo}　|　打印时间：${new Date().toLocaleString('zh-CN')}　|　第3页
+        </div>
+      </div>`;
+    html += page3;
+  }
+
+  $('printArea').innerHTML = html;
+}
+
+function collectFormData() {
+  const data = {};
+  document.querySelectorAll('.form-area input, .form-area select').forEach(el => {
+    if (el.id) {
+      if (el.type === 'checkbox') data[el.id] = el.checked;
+      else data[el.id] = el.value;
+    }
+  });
+  data._coopMode = getCoopMode();
+  data._deployMode = getDeployMode();
+  data._settlement = getSettlement();
+  return data;
+}
+
+function saveDraft() {
+  try {
+    localStorage.setItem('dh_quote_draft_v38', JSON.stringify(collectFormData()));
+    showStatus('✅ 草稿已保存（' + new Date().toLocaleTimeString() + '）');
+  } catch (e) {
+    showStatus('❌ 保存失败：' + e.message, true);
+  }
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem('dh_quote_draft_v38');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    Object.keys(data).forEach(key => {
+      if (key.startsWith('_')) return;
+      const el = $(key);
+      if (!el) return;
+      if (el.type === 'checkbox') {
+        el.checked = data[key];
+        if (el.id.startsWith('sys')) {
+          const item = el.closest('.sys-item');
+          if (item) {
+            if (data[key]) { item.classList.add('checked'); item.classList.remove('unchecked'); }
+            else { item.classList.remove('checked'); item.classList.add('unchecked'); }
+          }
+          const days = $(el.id + 'Days');
+          if (days) days.disabled = !data[key];
+        }
+      } else {
+        el.value = data[key];
+      }
+    });
+    if (data._coopMode) {
+      document.querySelectorAll('input[name="coopMode"]').forEach(el => {
+        el.checked = (el.value === data._coopMode);
+        el.closest('.radio-item').classList.toggle('selected', el.checked);
+      });
+    }
+    if (data._deployMode) {
+      document.querySelectorAll('input[name="deployMode"]').forEach(el => {
+        el.checked = (el.value === data._deployMode);
+        el.closest('.radio-item').classList.toggle('selected', el.checked);
+      });
+    }
+    if (data._settlement) {
+      document.querySelectorAll('input[name="settlement"]').forEach(el => {
+        el.checked = (el.value === data._settlement);
+        el.closest('.radio-item').classList.toggle('selected', el.checked);
+      });
+    }
+    ['multiTenant','needMultiTmc','needIntegration','needCustomDev','needDataMapping','needXinchuang','needLevel3'].forEach(id => {
+      const el = $(id);
+      if (el && el.value === '1') {
+        el.closest('.service-card').classList.add('active');
+      }
+    });
+    showStatus('📄 已加载上次保存的草稿');
+  } catch (e) { console.warn(e); }
+}
+
+function resetForm() {
+  if (!confirm('确定要重置所有配置吗？')) return;
+  localStorage.removeItem('dh_quote_draft_v38');
+  location.reload();
+}
+
+function exportPDF() {
+  calculate();
+  setTimeout(() => { window.print(); }, 200);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  $('quoteDate').value = y + '-' + m + '-' + day;
+
+  function bindRadioGroup(groupId, onChange) {
+    const group = $(groupId);
+    group.querySelectorAll('.radio-item').forEach(item => {
+      item.addEventListener('click', function() {
+        group.querySelectorAll('.radio-item').forEach(el => el.classList.remove('selected'));
+        this.classList.add('selected');
+        this.querySelector('input').checked = true;
+        if (onChange) onChange();
+        updateVisibility();
+        calculate();
+      });
+    });
+  }
+  bindRadioGroup('coopModeGroup');
+  bindRadioGroup('deployModeGroup');
+  bindRadioGroup('settlementGroup');
+
+  document.querySelectorAll('.form-area input, .form-area select').forEach(el => {
+    el.addEventListener('input', function() {
+      updateVisibility();
+      calculate();
+    });
+    el.addEventListener('change', function() {
+      updateVisibility();
+      calculate();
+    });
+  });
+
+  calcIntegration();
+  loadDraft();
+  updateVisibility();
+  updateStructDisplay();
+  calculate();
+
+  setInterval(() => {
+    try { saveDraft(); } catch (e) {}
+  }, 60000);
+});
+</script>
+</body>
+</html>

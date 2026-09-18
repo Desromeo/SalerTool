@@ -1,0 +1,2246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>东华商旅 · 销售首次拜访调研表</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #eef2f7;
+    margin: 0;
+    padding: 20px;
+    color: #1a2b4a;
+    font-size: 14px;
+  }
+  .app { max-width: 1080px; margin: 0 auto; }
+
+  .header {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+  }
+  .header h1 { margin: 0 0 8px 0; font-size: 22px; color: #0b2b4a; }
+  .header .sub { color: #5e6f8d; font-size: 13px; line-height: 1.7; }
+  .header .meta { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #3d4e6b; }
+  .header .meta span { background: #eef4fb; padding: 4px 12px; border-radius: 20px; }
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .toolbar .spacer { flex: 1; }
+  .btn {
+    padding: 9px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary { background: #1a73e8; color: #fff; }
+  .btn-primary:hover { background: #1557b0; }
+  .btn-outline { background: #fff; color: #1a2b4a; border: 1px solid #d0d7e2; }
+  .btn-outline:hover { background: #f5f7fa; }
+  .btn-danger { background: #fff; color: #c73e3e; border: 1px solid #f0c0c0; }
+  .btn-danger:hover { background: #fdf0f0; }
+  .status { font-size: 13px; color: #0a8f5c; margin-left: 8px; }
+  .status.error { color: #c73e3e; }
+
+  /* 信息完整度统计组件 */
+  .completeness-widget {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f7f9fc;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid #e4eaf2;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .completeness-label {
+    color: #3d4e6b;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .completeness-bar {
+    width: 100px;
+    height: 8px;
+    background: #e4eaf2;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .completeness-fill {
+    height: 100%;
+    background: #c73e3e;
+    border-radius: 4px;
+    transition: width 0.3s, background 0.3s;
+    width: 0%;
+  }
+  .completeness-text {
+    font-weight: 700;
+    color: #0b2b4a;
+    min-width: 36px;
+    text-align: right;
+    font-size: 13px;
+  }
+
+  .section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+  }
+  .section h2 {
+    font-size: 17px;
+    font-weight: 600;
+    color: #0b2b4a;
+    margin: 0 0 16px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eef2f7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section h2 .num {
+    background: #1a73e8;
+    color: #fff;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 24px;
+  }
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .info-item.full-width {
+    grid-column: 1 / -1;
+  }
+  .info-item label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #2d3a5a;
+  }
+  .info-item label .hint {
+    font-size: 12px;
+    color: #8892a8;
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .info-item input[type="text"],
+  .info-item input[type="number"],
+  .info-item input[type="email"],
+  .info-item input[type="date"],
+  .info-item select,
+  .info-item textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d0d7e2;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    color: #1a2b4a;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .info-item input:focus,
+  .info-item select:focus,
+  .info-item textarea:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.10);
+  }
+  .info-item select:disabled {
+    background: #f0f3f7;
+    color: #6b7a8f;
+    cursor: not-allowed;
+  }
+  .info-item textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  .info-item textarea[readonly] {
+    background: #f7f9fc;
+    color: #3d4e6b;
+    cursor: default;
+    resize: none;
+    min-height: 38px;
+    height: 38px;
+    line-height: 1.4;
+    overflow-y: auto;
+  }
+  .info-item textarea[readonly]:focus {
+    border-color: #d0d7e2;
+    box-shadow: none;
+  }
+
+  .other-input {
+    display: none;
+  }
+  .other-input.show {
+    display: block;
+  }
+
+  .saas-only,
+  .local-only,
+  .channel-only {
+    display: none;
+  }
+  .saas-only.show,
+  .local-only.show,
+  .channel-only.show {
+    display: flex;
+  }
+
+  #initiationInfoSection {
+    display: none;
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px dashed #d0d7e2;
+    grid-column: 1 / -1;
+  }
+  #initiationInfoSection.show {
+    display: block;
+  }
+
+  #travelFeeSection {
+    display: none;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed #d0d7e2;
+    grid-column: 1 / -1;
+  }
+  #travelFeeSection.show {
+    display: block;
+  }
+
+  .input-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .input-with-unit input {
+    flex: 1;
+  }
+  .input-with-unit .unit {
+    font-size: 13px;
+    color: #3d4e6b;
+    white-space: nowrap;
+  }
+  .peak-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .peak-group input {
+    flex: 1;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: center;
+    padding-top: 4px;
+  }
+  .checkbox-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #2d3a5a;
+    cursor: pointer;
+    background: #f7f9fc;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid #e4eaf2;
+    transition: all 0.15s;
+  }
+  .checkbox-group label:hover {
+    background: #eef4fb;
+    border-color: #c8d8ea;
+  }
+  .checkbox-group input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: #1a73e8;
+    flex-shrink: 0;
+  }
+
+  .priority-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding-top: 4px;
+  }
+  .priority-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #e4eaf2;
+    border-radius: 6px;
+    background: #f7f9fc;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    font-size: 13px;
+    color: #2d3a5a;
+  }
+  .priority-item:hover {
+    background: #eef4fb;
+    border-color: #c8d8ea;
+  }
+  .priority-item.selected {
+    background: #e8f0fe;
+    border-color: #1a73e8;
+    color: #0b2b4a;
+    font-weight: 500;
+  }
+  .priority-badge {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1a73e8;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .priority-item.selected .priority-badge {
+    display: inline-flex;
+  }
+  .priority-hint {
+    font-size: 12px;
+    color: #8892a8;
+    margin-top: 8px;
+  }
+
+  .drivers-other-input {
+    display: none;
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d0d7e2;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    color: #1a2b4a;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .drivers-other-input.show {
+    display: block;
+  }
+  .drivers-other-input:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.10);
+  }
+
+  .sys-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .sys-table th,
+  .sys-table td {
+    border: 1px solid #e4eaf2;
+    padding: 8px 10px;
+    vertical-align: top;
+    text-align: left;
+  }
+  .sys-table th {
+    background: #f7f9fc;
+    font-weight: 600;
+    color: #3d4e6b;
+    white-space: nowrap;
+  }
+  .sys-table td {
+    background: #fff;
+  }
+  .sys-table select,
+  .sys-table input[type="text"] {
+    width: 100%;
+    padding: 5px 6px;
+    border: 1px solid #d0d7e2;
+    border-radius: 5px;
+    font-size: 13px;
+    font-family: inherit;
+    background: #fff;
+    color: #1a2b4a;
+  }
+  .sys-table select:focus,
+  .sys-table input:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26,115,232,0.10);
+  }
+  .sys-table .col-sys { width: 20%; }
+  .sys-table .col-brand { width: 42%; }
+  .sys-table .col-deploy { width: 38%; }
+
+  .brand-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .struct-box {
+    background: #f8f9fc;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #e4eaf2;
+  }
+  .struct-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .struct-header .auto-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2d3a5a;
+    cursor: pointer;
+  }
+  .struct-header .auto-check input[type="checkbox"] {
+    width: 16px; height: 16px; cursor: pointer; accent-color: #1a73e8;
+  }
+  .struct-summary {
+    font-size: 13px;
+    color: #3d4e6b;
+    background: #fff;
+    padding: 3px 10px;
+    border-radius: 14px;
+    border: 1px solid #e4eaf2;
+  }
+  .struct-summary strong { color: #0b2b4a; }
+  .struct-summary .remain { color: #1a73e8; font-weight: 600; margin-left: 6px; }
+  .struct-summary .remain.over { color: #c73e3e; }
+  .struct-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+  }
+  .struct-slider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .struct-slider .icon-label {
+    min-width: 48px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2d3a5a;
+    flex-shrink: 0;
+  }
+  .struct-slider input[type="range"] {
+    flex: 1;
+    min-width: 60px;
+    accent-color: #1a73e8;
+    cursor: pointer;
+  }
+  .struct-slider input[type="range"]:disabled { opacity: 0.55; cursor: not-allowed; }
+  .struct-slider .val {
+    min-width: 78px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 13px;
+    color: #0b2b4a;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+  .struct-slider .val small {
+    display: block;
+    font-weight: 400;
+    color: #5e6f8d;
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  .hint {
+    font-size: 12px;
+    color: #8892a8;
+    font-weight: 400;
+    margin-left: 4px;
+  }
+
+  .print-area { display: none; }
+
+  @media print {
+    body { background: #fff; padding: 0; font-size: 11pt; color: #000; }
+    .app { max-width: none; }
+    .header, .toolbar, .form-area, .no-print { display: none !important; }
+    .print-area { display: block !important; }
+
+    .print-area h1 { font-size: 18pt; text-align: center; margin: 0 0 4pt 0; }
+    .print-area .print-sub { text-align: center; color: #555; font-size: 10pt; margin-bottom: 14pt; }
+    .print-area .print-meta { text-align: center; font-size: 10pt; color: #333; margin-bottom: 16pt; }
+
+    .print-area h2 {
+      font-size: 12pt;
+      margin: 14pt 0 6pt 0;
+      padding: 4pt 8pt;
+      background: #f0f3f8;
+      border-left: 4pt solid #1a73e8;
+      page-break-after: avoid;
+    }
+    .print-area table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8pt;
+      page-break-inside: avoid;
+    }
+    .print-area table th,
+    .print-area table td {
+      border: 0.5pt solid #999;
+      padding: 4pt 6pt;
+      font-size: 10pt;
+      vertical-align: top;
+    }
+    .print-area table th {
+      background: #f5f7fa;
+      font-weight: 600;
+      text-align: left;
+      width: 28%;
+    }
+    .print-area .empty { color: #aaa; font-style: italic; }
+    .print-area .print-footer {
+      margin-top: 20pt;
+      padding-top: 8pt;
+      border-top: 0.5pt solid #999;
+      font-size: 9pt;
+      color: #666;
+      text-align: center;
+    }
+    @page { size: A4; margin: 14mm 12mm; }
+  }
+
+  @media (max-width: 700px) {
+    body { padding: 10px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .struct-grid { grid-template-columns: 1fr; }
+    .section { padding: 16px; }
+    .toolbar { padding: 10px; }
+    .btn { padding: 8px 14px; font-size: 13px; }
+    .completeness-widget { padding: 4px 10px; font-size: 12px; }
+    .completeness-bar { width: 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header no-print">
+    <h1>📋 东华商旅 · 销售首次拜访调研表</h1>
+    <div class="sub">
+      本表用于销售首次拜访客户时快速收集关键信息，为后续方案设计与报价提供基础。只问品牌、部署方式、大方向流程、结算倾向、痛点，不涉及技术细节。
+    </div>
+    <div class="meta">
+      <span>版本：V1.0</span>
+      <span>方案编号：DHTM-VISIT-2026</span>
+    </div>
+  </div>
+
+  <div class="toolbar no-print">
+    <button type="button" class="btn btn-outline" onclick="saveDraft()">💾 保存草稿</button>
+    <button type="button" class="btn btn-primary" onclick="submitForm()">✅ 提交保存</button>
+    <button type="button" class="btn btn-outline" onclick="exportPDF()">🖨️ 打印 / 导出 PDF</button>
+    <button type="button" class="btn btn-danger" onclick="clearForm()">🗑️ 清空</button>
+    <span class="spacer"></span>
+    <div class="completeness-widget" id="completenessWidget" title="信息完整度">
+      <span class="completeness-label">📊 信息完整度</span>
+      <div class="completeness-bar">
+        <div class="completeness-fill" id="completenessFill"></div>
+      </div>
+      <span class="completeness-text" id="completenessText">0%</span>
+    </div>
+    <span id="statusMsg" class="status"></span>
+  </div>
+
+  <form id="surveyForm" class="form-area" onsubmit="return false;">
+
+    <!-- 一、客户基本信息 -->
+    <div class="section">
+      <h2><span class="num">一</span>客户基本信息</h2>
+      <div class="info-grid">
+
+        <div class="info-item">
+          <label>填写人</label>
+          <input type="text" name="salesName" placeholder="请输入填写人姓名">
+        </div>
+
+        <div class="info-item">
+          <label>拜访日期</label>
+          <input type="date" name="visitDate" id="visitDate">
+        </div>
+
+        <div class="info-item">
+          <label>公司全称</label>
+          <input type="text" name="companyName" placeholder="请输入公司全称">
+        </div>
+
+        <div class="info-item">
+          <label>统一社会信用代码</label>
+          <input type="text" name="creditCode" placeholder="请输入统一社会信用代码">
+        </div>
+
+        <div class="info-item">
+          <label>企业类型</label>
+          <select name="enterpriseType" onchange="onOtherSelectChange(this, 'enterpriseTypeOther')">
+            <option value="">请选择</option>
+            <option>央企</option>
+            <option>省属国企</option>
+            <option>市属国企</option>
+            <option>上市公司</option>
+            <option>大型民企</option>
+            <option>中小民企</option>
+            <option>金融机构</option>
+            <option>其他</option>
+          </select>
+          <input type="text" name="enterpriseTypeOther" id="enterpriseTypeOther" class="other-input" placeholder="请输入企业类型">
+        </div>
+
+        <div class="info-item">
+          <label>所属行业</label>
+          <select name="industry" onchange="onOtherSelectChange(this, 'industryOther')">
+            <option value="">请选择</option>
+            <option>金融/保险</option>
+            <option>制造</option>
+            <option>信息/软件</option>
+            <option>科研/教育</option>
+            <option>医药</option>
+            <option>建筑</option>
+            <option>批发零售</option>
+            <option>租赁商务</option>
+            <option>其他</option>
+          </select>
+          <input type="text" name="industryOther" id="industryOther" class="other-input" placeholder="请输入行业">
+        </div>
+
+        <div class="info-item">
+          <label>所属区域</label>
+          <select name="region">
+            <option value="">请选择</option>
+            <option>华东</option>
+            <option>华南</option>
+            <option>华北</option>
+            <option>华中</option>
+            <option>西南</option>
+            <option>西北</option>
+            <option>东北</option>
+          </select>
+        </div>
+
+        <div class="info-item">
+          <label>员工总人数</label>
+          <div class="input-with-unit">
+            <input type="number" name="employeeCount" placeholder="如 1500" min="0">
+            <span class="unit">人</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <label>年度差旅预算 / GMV</label>
+          <div class="input-with-unit">
+            <input type="number" name="annualGmv" id="annualGmv" placeholder="如 600" min="0" step="0.01" oninput="updateStructDisplay()">
+            <span class="unit">万元</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <label>最大单月差旅量 <span class="hint">（用于授信额度测算）</span></label>
+          <div class="peak-group">
+            <input type="number" name="peakMonthlyGmv" placeholder="如 80" min="0" step="0.01">
+            <span class="unit" style="font-size:13px;color:#3d4e6b;white-space:nowrap;">万元 /</span>
+            <input type="text" name="peakMonth" placeholder="如 7月">
+          </div>
+        </div>
+
+        <div class="info-item full-width">
+          <label>差旅结构占比 <span class="hint">（按金额，机票/酒店/火车/用车）</span></label>
+          <div class="struct-box">
+            <div class="struct-header">
+              <label class="auto-check">
+                <input type="checkbox" id="autoStruct" checked onchange="onAutoStructChange(this)">
+                <span>根据企业信息自动适配差旅结构</span>
+              </label>
+              <span class="struct-summary">
+                占比总和：<strong id="structTotal">100%</strong>
+                <span id="structRemain" class="remain"></span>
+              </span>
+            </div>
+            <div class="struct-grid">
+              <div class="struct-slider">
+                <span class="icon-label">✈️ 机票</span>
+                <input type="range" id="structAir" name="structAir" min="0" max="100" value="45" oninput="onStructChange(this)">
+                <span class="val" id="structAirVal">45%</span>
+              </div>
+              <div class="struct-slider">
+                <span class="icon-label">🏨 酒店</span>
+                <input type="range" id="structHotel" name="structHotel" min="0" max="100" value="38" oninput="onStructChange(this)">
+                <span class="val" id="structHotelVal">38%</span>
+              </div>
+              <div class="struct-slider">
+                <span class="icon-label">🚄 火车</span>
+                <input type="range" id="structTrain" name="structTrain" min="0" max="100" value="10" oninput="onStructChange(this)">
+                <span class="val" id="structTrainVal">10%</span>
+              </div>
+              <div class="struct-slider">
+                <span class="icon-label">🚗 用车</span>
+                <input type="range" id="structCar" name="structCar" min="0" max="100" value="7" oninput="onStructChange(this)">
+                <span class="val" id="structCarVal">7%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 二、系统环境概览 -->
+    <div class="section">
+      <h2><span class="num">二</span>系统环境概览</h2>
+      <table class="sys-table">
+        <thead>
+          <tr>
+            <th class="col-sys">系统类型</th>
+            <th class="col-brand">品牌</th>
+            <th class="col-deploy">部署方式</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>财务系统</strong></td>
+            <td class="brand-cell">
+              <select name="financeBrand" onchange="onOtherSelectChange(this, 'financeBrandOther')">
+                <option value="">请选择</option>
+                <option>用友</option><option>金蝶</option><option>SAP</option><option>Oracle</option>
+                <option>浪潮</option><option>天财</option><option>复翼</option><option>其他</option>
+              </select>
+              <input type="text" name="financeBrandOther" id="financeBrandOther" class="other-input" placeholder="请输入品牌名称">
+            </td>
+            <td>
+              <select name="financeDeploy">
+                <option value="">请选择</option>
+                <option>SaaS部署</option><option>本地部署</option><option>待确认</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>OA系统</strong></td>
+            <td class="brand-cell">
+              <select name="oaBrand" onchange="onOtherSelectChange(this, 'oaBrandOther')">
+                <option value="">请选择</option>
+                <option>泛微</option><option>致远</option><option>蓝凌</option>
+                <option>钉钉</option><option>企业微信</option><option>飞书</option>
+                <option>自研</option><option>其他</option>
+              </select>
+              <input type="text" name="oaBrandOther" id="oaBrandOther" class="other-input" placeholder="请输入品牌名称">
+            </td>
+            <td>
+              <select name="oaDeploy">
+                <option value="">请选择</option>
+                <option>SaaS部署</option><option>本地部署</option><option>待确认</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>费控系统</strong></td>
+            <td class="brand-cell">
+              <select name="expenseBrand" onchange="onOtherSelectChange(this, 'expenseBrandOther')">
+                <option value="">请选择</option>
+                <option>汇联易</option><option>每刻</option><option>易快报</option>
+                <option>费控宝</option><option>SAP Concur</option>
+                <option>天财</option><option>复翼</option><option>自研</option>
+                <option>无独立费控系统</option><option>其他</option>
+              </select>
+              <input type="text" name="expenseBrandOther" id="expenseBrandOther" class="other-input" placeholder="请输入品牌名称">
+            </td>
+            <td>
+              <select name="expenseDeploy">
+                <option value="">请选择</option>
+                <option>SaaS部署</option><option>本地部署</option><option>待确认</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>现有商旅系统</strong></td>
+            <td class="brand-cell">
+              <select name="tmcBrand" onchange="onOtherSelectChange(this, 'tmcBrandOther')">
+                <option value="">请选择</option>
+                <option>携程商旅</option><option>同程商旅</option><option>阿里商旅</option>
+                <option>飞猪</option><option>腾邦</option><option>自研</option>
+                <option>无商旅系统</option><option>其他</option>
+              </select>
+              <input type="text" name="tmcBrandOther" id="tmcBrandOther" class="other-input" placeholder="请输入品牌名称">
+            </td>
+            <td>
+              <select name="tmcDeploy">
+                <option value="">请选择</option>
+                <option>SaaS部署</option><option>本地部署</option><option>待确认</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>HR系统</strong></td>
+            <td class="brand-cell">
+              <select name="hrBrand" onchange="onOtherSelectChange(this, 'hrBrandOther')">
+                <option value="">请选择</option>
+                <option>用友</option><option>金蝶</option><option>SAP</option><option>Oracle</option>
+                <option>北森</option><option>自研</option><option>其他</option>
+              </select>
+              <input type="text" name="hrBrandOther" id="hrBrandOther" class="other-input" placeholder="请输入品牌名称">
+            </td>
+            <td>
+              <select name="hrDeploy">
+                <option value="">请选择</option>
+                <option>SaaS部署</option><option>本地部署</option><option>待确认</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>ERP系统</strong></td>
+            <td class="brand-cell">
+              <select name="erpBrand" onchange="onOtherSelectChange(this, 'erpBrandOther')">
+                <option value="">请选择</option>
+                <option>用友</option><option>金蝶</option><option>SAP</option><option>Oracle</option>
+                <option>浪潮</option><option>自研</option><option>其他</option>
+              </select>
+              <input type="text" name="erpBrandOther" id="erpBrandOther" class="other-input" placeholder="请输入品牌名称">
+            </td>
+            <td>
+              <select name="erpDeploy">
+                <option value="">请选择</option>
+                <option>SaaS部署</option><option>本地部署</option><option>待确认</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:12px;color:#8892a8;margin-top:8px;">
+        💡 只问品牌和部署方式，具体版本、数据库、接口文档、对接人等留到技术对接阶段。所有“其他”选项均可手动输入具体内容。
+      </div>
+    </div>
+
+    <!-- 三、差旅管理现状 -->
+    <div class="section">
+      <h2><span class="num">三</span>差旅管理现状</h2>
+      <div class="info-grid">
+
+        <div class="info-item">
+          <label>出差申请方式</label>
+          <select name="approvalChannel" onchange="onOtherSelectChange(this, 'approvalChannelOther')">
+            <option value="">请选择</option>
+            <option>OA系统</option>
+            <option>商旅平台</option>
+            <option>纸质</option>
+            <option>口头</option>
+            <option>其他</option>
+          </select>
+          <input type="text" name="approvalChannelOther" id="approvalChannelOther" class="other-input" placeholder="请输入出差申请方式">
+        </div>
+
+        <div class="info-item">
+          <label>审批环节 <span class="hint">（可多选）</span></label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="approvalNodes" value="事前审批">事前审批</label>
+            <label><input type="checkbox" name="approvalNodes" value="采购审批">采购审批</label>
+            <label><input type="checkbox" name="approvalNodes" value="报销审批">报销审批</label>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <label>当前预订方式</label>
+          <select name="bookingChannel" id="bookingChannel" onchange="onBookingChannelChange()">
+            <option value="">请选择</option>
+            <option>通过商旅平台预订（PC/移动端）</option>
+            <option>员工自行采购（电话/邮件/其他）</option>
+            <option>混合使用</option>
+          </select>
+        </div>
+
+        <div class="info-item" id="platformRatioField" style="display:none;">
+          <label>商旅平台预订占比 <span class="hint">（%）</span></label>
+          <div class="input-with-unit">
+            <input type="number" name="platformRatio" id="platformRatio" placeholder="如 60" min="0" max="100">
+            <span class="unit">%</span>
+          </div>
+        </div>
+
+        <div class="info-item" id="settlementMethodField">
+          <label>商旅平台订单结算方式</label>
+          <select name="settlementMethod" id="settlementMethod" onchange="onSettlementMethodChange()">
+            <option value="">请选择</option>
+            <option>企业月结</option>
+            <option>企业预存</option>
+            <option>现结支付</option>
+            <option>其他</option>
+          </select>
+          <input type="text" name="settlementMethodOther" id="settlementMethodOther" class="other-input" placeholder="请输入结算方式">
+        </div>
+
+        <div class="info-item" id="settlementDaysField" style="display:none;">
+          <label>月结账期</label>
+          <select name="settlementDays" id="settlementDays" onchange="onOtherSelectChange(this, 'settlementDaysOther')">
+            <option value="">请选择</option>
+            <option>30天</option>
+            <option>45天</option>
+            <option>60天</option>
+            <option>其他</option>
+          </select>
+          <input type="text" name="settlementDaysOther" id="settlementDaysOther" class="other-input" placeholder="请输入账期">
+        </div>
+
+        <!-- 差旅服务费标准区块 -->
+        <div id="travelFeeSection">
+          <div style="font-size:14px;font-weight:600;color:#0b2b4a;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #d0d7e2;">
+            📌 当前各项差旅服务费标准
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>国内机票（元/张）</label>
+              <input type="number" name="feeAirDomestic" min="0" step="0.01" placeholder="如 10">
+            </div>
+            <div class="info-item">
+              <label>国际机票·洲际内（元/段）</label>
+              <input type="number" name="feeAirIntra" min="0" step="0.01" placeholder="如 20">
+            </div>
+            <div class="info-item">
+              <label>国际机票·跨洲际（元/段）</label>
+              <input type="number" name="feeAirInter" min="0" step="0.01" placeholder="如 30">
+            </div>
+            <div class="info-item">
+              <label>国内酒店（元/间夜）</label>
+              <input type="number" name="feeHotelDomestic" min="0" step="0.01" placeholder="如 5">
+            </div>
+            <div class="info-item">
+              <label>国际酒店（元/间夜）</label>
+              <input type="number" name="feeHotelIntl" min="0" step="0.01" placeholder="如 20">
+            </div>
+            <div class="info-item">
+              <label>火车票（元/张）</label>
+              <input type="number" name="feeTrain" min="0" step="0.01" placeholder="如 5">
+            </div>
+            <div class="info-item">
+              <label>用车（元/单）</label>
+              <input type="number" name="feeCar" min="0" step="0.01" placeholder="如 1">
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div style="font-size:12px;color:#8892a8;margin-top:12px;">
+        💡 只问大方向，具体审批节点、报销周期、财务审核细节等留到方案设计阶段。
+      </div>
+    </div>
+
+    <!-- 四、部署与合规倾向 -->
+    <div class="section">
+      <h2><span class="num">四</span>部署与合规倾向</h2>
+      <div class="info-grid">
+
+        <div class="info-item">
+          <label>部署方式倾向</label>
+          <select name="deployPreference" id="deployPreference" onchange="onDeployPreferenceChange()">
+            <option value="">请选择</option>
+            <option>SaaS部署</option>
+            <option>混合云部署</option>
+            <option>本地部署</option>
+            <option>待确认</option>
+          </select>
+        </div>
+
+        <div class="info-item saas-only" data-mode="saas">
+          <label>预计开通账户数 <span class="hint">（仅选SaaS时填写）</span></label>
+          <div class="input-with-unit">
+            <input type="number" name="accountCount" placeholder="如 1500" min="0">
+            <span class="unit">人</span>
+          </div>
+        </div>
+
+        <div class="info-item" data-mode="common">
+          <label>是否需要开通多租户</label>
+          <select name="needMultiTenant">
+            <option value="">请选择</option>
+            <option>是</option>
+            <option>否</option>
+            <option>待定</option>
+          </select>
+        </div>
+
+        <div class="info-item" data-mode="common">
+          <label>是否需要多TMC聚合比价</label>
+          <select name="multiTmc">
+            <option value="">请选择</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+
+        <div class="info-item" data-mode="common">
+          <label>是否需要系统对接</label>
+          <select name="needIntegration" id="needIntegration" onchange="onNeedIntegrationChange()">
+            <option value="">请选择</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+
+        <div class="info-item full-width" id="systemIntegrationListField" style="display:none;">
+          <label>需要对接的系统 <span class="hint">（可多选）</span></label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" name="systemIntegrationList" value="财务系统">财务系统</label>
+            <label><input type="checkbox" name="systemIntegrationList" value="OA系统">OA系统</label>
+            <label><input type="checkbox" name="systemIntegrationList" value="费控系统">费控系统</label>
+            <label><input type="checkbox" name="systemIntegrationList" value="现有商旅系统">现有商旅系统</label>
+            <label><input type="checkbox" name="systemIntegrationList" value="HR系统">HR系统</label>
+            <label><input type="checkbox" name="systemIntegrationList" value="ERP系统">ERP系统</label>
+          </div>
+        </div>
+
+        <div class="info-item local-only" data-mode="local">
+          <label>是否有数据不出境要求</label>
+          <select name="dataLocal">
+            <option value="">请选择</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+
+        <div class="info-item local-only" data-mode="local">
+          <label>是否需要等保三级</label>
+          <select name="level3">
+            <option value="">请选择</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+
+        <div class="info-item local-only" data-mode="local">
+          <label>是否需要定制开发</label>
+          <select name="customDev">
+            <option value="">请选择</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+
+        <div class="info-item local-only" data-mode="local">
+          <label>是否需要信创适配</label>
+          <select name="xinchuang">
+            <option value="">请选择</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 五、商务意向与痛点 / 商务意向与立项信息 -->
+    <div class="section">
+      <h2><span class="num">五</span><span id="section5Title">商务意向与痛点</span></h2>
+      <div class="info-grid">
+
+        <div class="info-item">
+          <label>项目阶段</label>
+          <select name="projectStage" id="projectStage" onchange="onProjectStageChange()">
+            <option value="">请选择</option>
+            <option>未识别需求</option>
+            <option>需求萌芽</option>
+            <option>内部调研中</option>
+            <option>需求文档已形成</option>
+            <option>可行性研究中</option>
+            <option>立项申请已提交</option>
+            <option>立项审批中</option>
+            <option>立项已批准</option>
+            <option>预算审批中</option>
+            <option>预算已落实</option>
+            <option>采购计划已确定</option>
+            <option>招标前准备</option>
+            <option>未知/不明确</option>
+          </select>
+        </div>
+
+        <div class="info-item">
+          <label>定义 / 判断依据</label>
+          <textarea name="projectStageDefinition" id="projectStageDefinition" readonly placeholder="选择项目阶段后自动显示对应定义"></textarea>
+        </div>
+
+        <div id="initiationInfoSection">
+          <div style="font-size:14px;font-weight:600;color:#0b2b4a;margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed #d0d7e2;">
+            📌 立项阶段关键信息
+          </div>
+          <div class="info-grid">
+
+            <div class="info-item full-width">
+              <label>立项驱动因素 <span class="hint">（按优先级依次点击，序号1为最高优先级）</span></label>
+              <div class="priority-group" id="driversGroup">
+                <div class="priority-item" data-value="降本"><span class="priority-badge"></span><span>降本</span></div>
+                <div class="priority-item" data-value="增效"><span class="priority-badge"></span><span>增效</span></div>
+                <div class="priority-item" data-value="合规"><span class="priority-badge"></span><span>合规</span></div>
+                <div class="priority-item" data-value="数据主权"><span class="priority-badge"></span><span>数据主权</span></div>
+                <div class="priority-item" data-value="系统打通"><span class="priority-badge"></span><span>系统打通</span></div>
+                <div class="priority-item" data-value="员工体验"><span class="priority-badge"></span><span>员工体验</span></div>
+                <div class="priority-item" data-value="领导要求"><span class="priority-badge"></span><span>领导要求</span></div>
+                <div class="priority-item" data-value="审计整改"><span class="priority-badge"></span><span>审计整改</span></div>
+                <div class="priority-item" data-value="其他"><span class="priority-badge"></span><span>其他</span></div>
+              </div>
+              <input type="text" name="driversOther" id="driversOther" class="drivers-other-input" placeholder="请输入其他立项驱动因素">
+              <div class="priority-hint">💡 按优先级依次点击选项即可编号，再次点击可取消</div>
+            </div>
+
+            <div class="info-item">
+              <label>项目预算范围</label>
+              <div class="input-with-unit">
+                <input type="number" name="budgetRange" min="0" step="0.01" placeholder="如 100">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>计划上线时间</label>
+              <input type="text" name="plannedOnlineTime" placeholder="如 2026年10月">
+            </div>
+
+            <div class="info-item">
+              <label>立项发起部门</label>
+              <select name="initiatingDept">
+                <option value="">请选择</option>
+                <option>行政部</option>
+                <option>财务部</option>
+                <option>科技部</option>
+                <option>采购部</option>
+                <option>业务部门</option>
+              </select>
+            </div>
+
+            <div class="info-item">
+              <label>立项审批层级</label>
+              <select name="approvalLevel">
+                <option value="">请选择</option>
+                <option>部门级</option>
+                <option>分管领导</option>
+                <option>总经理办公会</option>
+                <option>董事会</option>
+              </select>
+            </div>
+
+            <div class="info-item">
+              <label>预算来源</label>
+              <select name="budgetSource">
+                <option value="">请选择</option>
+                <option>科技预算</option>
+                <option>行政预算</option>
+                <option>运营预算</option>
+                <option>专项预算</option>
+              </select>
+            </div>
+
+            <div class="info-item">
+              <label>预计采购时间</label>
+              <input type="text" name="expectedProcurementTime" placeholder="如 2026年Q3 / 2026年9月">
+            </div>
+
+            <div class="info-item">
+              <label>采购方式</label>
+              <select name="procurementMethod">
+                <option value="">请选择</option>
+                <option>公开招标</option>
+                <option>竞争性磋商</option>
+                <option>单一来源</option>
+                <option>框架协议</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="info-item">
+          <label>当前差旅管理最大痛点</label>
+          <textarea name="painPoint" placeholder="请简述当前差旅管理中最困扰的问题"></textarea>
+        </div>
+
+        <div class="info-item">
+          <label>期望通过东华商旅解决的核心问题</label>
+          <textarea name="expectation" placeholder="请简述期望达成的目标"></textarea>
+        </div>
+
+        <div class="info-item">
+          <label>是否通过渠道合作</label>
+          <select name="channelCoop" id="channelCoop" onchange="onChannelCoopChange()">
+            <option value="">请选择</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+
+        <div class="info-item channel-only" data-mode="channel">
+          <label>渠道方名称</label>
+          <input type="text" name="channelName" id="channelName" placeholder="如 联易融">
+        </div>
+
+      </div>
+    </div>
+
+  </form>
+
+  <div id="printArea" class="print-area"></div>
+
+</div>
+
+<script>
+const CONFIG = {
+  apiBaseUrl: '',
+  localStorageKey: 'dh_sales_visit_draft_v1',
+  submittedKey: 'dh_sales_visit_submitted_v1'
+};
+
+let driverOrder = [];
+
+function $(sel) { return document.querySelector(sel); }
+
+function showStatus(msg, isError) {
+  const el = $('#statusMsg');
+  el.textContent = msg;
+  el.className = 'status' + (isError ? ' error' : '');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.textContent = ''; }, 4000);
+}
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+}
+
+function todayDateInput() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function formatDateDisplay(v) {
+  if (!v) return '';
+  const parts = String(v).split('-');
+  if (parts.length === 3) {
+    return parts[0] + '年' + parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日';
+  }
+  return v;
+}
+
+function onOtherSelectChange(selectEl, otherInputId) {
+  const otherInput = document.getElementById(otherInputId);
+  if (!otherInput) return;
+  if (selectEl.value === '其他') {
+    otherInput.classList.add('show');
+  } else {
+    otherInput.classList.remove('show');
+    otherInput.value = '';
+  }
+  calculateCompleteness();
+}
+
+/* ============================================================
+   信息完整度统计
+   ============================================================ */
+const COMPLETENESS_FIELDS = [
+  { name: 'salesName', label: '填写人', weight: 1 },
+  { name: 'visitDate', label: '拜访日期', weight: 1 },
+  { name: 'companyName', label: '公司全称', weight: 3 },
+  { name: 'creditCode', label: '统一社会信用代码', weight: 1 },
+  { name: 'enterpriseType', label: '企业类型', weight: 2 },
+  { name: 'industry', label: '所属行业', weight: 2 },
+  { name: 'region', label: '所属区域', weight: 1 },
+  { name: 'employeeCount', label: '员工总人数', weight: 2 },
+  { name: 'annualGmv', label: '年度差旅预算/GMV', weight: 3 },
+  { name: 'peakMonthlyGmv', label: '最大单月差旅量', weight: 2 },
+  { name: 'financeBrand', label: '财务系统品牌', weight: 1 },
+  { name: 'oaBrand', label: 'OA系统品牌', weight: 1 },
+  { name: 'expenseBrand', label: '费控系统品牌', weight: 1 },
+  { name: 'tmcBrand', label: '现有商旅系统品牌', weight: 2 },
+  { name: 'hrBrand', label: 'HR系统品牌', weight: 1 },
+  { name: 'erpBrand', label: 'ERP系统品牌', weight: 1 },
+  { name: 'approvalChannel', label: '出差申请方式', weight: 1 },
+  { name: 'approvalNodes', label: '审批环节', weight: 1, type: 'checkboxGroup' },
+  { name: 'bookingChannel', label: '当前预订方式', weight: 2 },
+  { name: 'platformRatio', label: '商旅平台预订占比', weight: 1 },
+  { name: 'settlementMethod', label: '商旅平台订单结算方式', weight: 1 },
+  { name: 'settlementDays', label: '月结账期', weight: 1 },
+  { name: 'feeAirDomestic', label: '国内机票服务费', weight: 1 },
+  { name: 'feeAirIntra', label: '国际机票洲际内服务费', weight: 1 },
+  { name: 'feeAirInter', label: '国际机票跨洲际服务费', weight: 1 },
+  { name: 'feeHotelDomestic', label: '国内酒店服务费', weight: 1 },
+  { name: 'feeHotelIntl', label: '国际酒店服务费', weight: 1 },
+  { name: 'feeTrain', label: '火车票服务费', weight: 1 },
+  { name: 'feeCar', label: '用车服务费', weight: 1 },
+  { name: 'deployPreference', label: '部署方式倾向', weight: 3 },
+  { name: 'accountCount', label: '预计开通账户数', weight: 1 },
+  { name: 'needMultiTenant', label: '是否需要开通多租户', weight: 1 },
+  { name: 'multiTmc', label: '是否需要多TMC聚合比价', weight: 1 },
+  { name: 'needIntegration', label: '是否需要系统对接', weight: 1 },
+  { name: 'systemIntegrationList', label: '需要对接的系统', weight: 1, type: 'checkboxGroup' },
+  { name: 'dataLocal', label: '是否有数据不出境要求', weight: 1 },
+  { name: 'level3', label: '是否需要等保三级', weight: 1 },
+  { name: 'customDev', label: '是否需要定制开发', weight: 1 },
+  { name: 'xinchuang', label: '是否需要信创适配', weight: 1 },
+  { name: 'projectStage', label: '项目阶段', weight: 3 },
+  { name: 'painPoint', label: '当前差旅管理最大痛点', weight: 3 },
+  { name: 'expectation', label: '期望解决的核心问题', weight: 3 },
+  { name: 'drivers', label: '立项驱动因素', weight: 2, type: 'custom' },
+  { name: 'budgetRange', label: '项目预算范围', weight: 1 },
+  { name: 'plannedOnlineTime', label: '计划上线时间', weight: 1 },
+  { name: 'initiatingDept', label: '立项发起部门', weight: 1 },
+  { name: 'approvalLevel', label: '立项审批层级', weight: 1 },
+  { name: 'budgetSource', label: '预算来源', weight: 1 },
+  { name: 'expectedProcurementTime', label: '预计采购时间', weight: 1 },
+  { name: 'procurementMethod', label: '采购方式', weight: 1 },
+  { name: 'channelCoop', label: '是否通过渠道合作', weight: 1 },
+  { name: 'channelName', label: '渠道方名称', weight: 1 },
+];
+
+function isElementVisible(el) {
+  if (!el) return false;
+  let current = el;
+  while (current && current !== document.body) {
+    if (window.getComputedStyle(current).display === 'none') return false;
+    current = current.parentElement;
+  }
+  return true;
+}
+
+function calculateCompleteness() {
+  let totalWeight = 0;
+  let filledWeight = 0;
+  let totalCount = 0;
+  let filledCount = 0;
+
+  COMPLETENESS_FIELDS.forEach(field => {
+    if (field.type === 'custom') {
+      if (field.name === 'drivers') {
+        const driversGroup = document.getElementById('driversGroup');
+        if (!driversGroup || !isElementVisible(driversGroup)) return;
+        totalWeight += field.weight;
+        totalCount++;
+        if (driverOrder.length > 0) {
+          filledWeight += field.weight;
+          filledCount++;
+        }
+        return;
+      }
+      return;
+    }
+
+    const elements = document.querySelectorAll('[name="' + field.name + '"]');
+    if (elements.length === 0) return;
+
+    const firstEl = elements[0];
+    const infoItem = firstEl.closest('.info-item');
+    if (!infoItem || !isElementVisible(infoItem)) return;
+
+    totalWeight += field.weight;
+    totalCount++;
+
+    let isFilled = false;
+    if (field.type === 'checkboxGroup') {
+      isFilled = Array.from(elements).some(el => el.checked);
+    } else {
+      const el = elements[0];
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        isFilled = el.checked;
+      } else {
+        const v = el.value;
+        isFilled = v !== undefined && v !== null && String(v).trim() !== '';
+      }
+    }
+
+    if (isFilled) {
+      filledWeight += field.weight;
+      filledCount++;
+    }
+  });
+
+  const pct = totalWeight > 0 ? Math.round(filledWeight / totalWeight * 100) : 0;
+
+  const fill = document.getElementById('completenessFill');
+  const text = document.getElementById('completenessText');
+  const widget = document.getElementById('completenessWidget');
+
+  if (fill) {
+    fill.style.width = pct + '%';
+    if (pct >= 80) fill.style.background = '#0a8f5c';
+    else if (pct >= 50) fill.style.background = '#1a73e8';
+    else if (pct >= 30) fill.style.background = '#e8a838';
+    else fill.style.background = '#c73e3e';
+  }
+  if (text) text.innerText = pct + '%';
+  if (widget) widget.title = `信息完整度：已填 ${filledCount} / ${totalCount} 项（权重加权 ${pct}%）`;
+}
+
+/* ============================================================
+   立项驱动因素：按点击顺序编号
+   ============================================================ */
+function initDriverGroup() {
+  const items = document.querySelectorAll('#driversGroup .priority-item');
+  items.forEach(item => {
+    item.addEventListener('click', function() {
+      const value = this.dataset.value;
+      const idx = driverOrder.indexOf(value);
+      if (idx === -1) {
+        driverOrder.push(value);
+      } else {
+        driverOrder.splice(idx, 1);
+      }
+      updateDriverDisplay();
+      calculateCompleteness();
+    });
+  });
+}
+
+function updateDriverDisplay() {
+  const items = document.querySelectorAll('#driversGroup .priority-item');
+  items.forEach(item => {
+    const value = item.dataset.value;
+    const idx = driverOrder.indexOf(value);
+    const badge = item.querySelector('.priority-badge');
+    if (idx === -1) {
+      item.classList.remove('selected');
+      badge.textContent = '';
+    } else {
+      item.classList.add('selected');
+      badge.textContent = idx + 1;
+    }
+  });
+
+  const otherInput = $('#driversOther');
+  if (otherInput) {
+    if (driverOrder.includes('其他')) {
+      otherInput.classList.add('show');
+    } else {
+      otherInput.classList.remove('show');
+      otherInput.value = '';
+    }
+  }
+}
+
+function setDriverOrder(arr) {
+  driverOrder = Array.isArray(arr) ? arr.slice() : [];
+  updateDriverDisplay();
+}
+
+function clearDriverOrder() {
+  driverOrder = [];
+  updateDriverDisplay();
+}
+
+/* ============================================================
+   项目阶段 → 定义/判断依据
+   ============================================================ */
+const STAGE_DEFINITIONS = {
+  '未识别需求': '客户尚未意识到商旅管理存在问题，或认为现状可接受。',
+  '需求萌芽': '客户有初步痛点（如对账效率低、员工投诉多），但未形成正式需求。',
+  '内部调研中': '客户正在收集员工/部门需求，了解市场方案和供应商。',
+  '需求文档已形成': '已编写需求说明书或调研报告，明确功能范围和建设目标。',
+  '可行性研究中': '正在评估技术、财务、合规可行性，可能涉及科技/财务/行政会签。',
+  '立项申请已提交': '已向管理层提交立项报告，等待审批。',
+  '立项审批中': '正在走内部审批流程（科技、财务、行政、分管领导会签）。',
+  '立项已批准': '已正式批准立项，但预算尚未落实。',
+  '预算审批中': '已批准立项，正在申请预算或等待预算批复。',
+  '预算已落实': '项目预算已批复，有明确资金来源和金额。',
+  '采购计划已确定': '已列入年度采购计划，明确采购方式和时间表。',
+  '招标前准备': '已启动招标文件编制或供应商调研，即将发标。',
+  '未知/不明确': '客户不愿透露或信息不完整。'
+};
+
+const INITIATION_STAGES = [
+  '可行性研究中',
+  '立项申请已提交',
+  '立项审批中',
+  '立项已批准',
+  '预算审批中',
+  '预算已落实',
+  '采购计划已确定',
+  '招标前准备'
+];
+
+function onProjectStageChange() {
+  const stage = $('#projectStage').value;
+  const definition = STAGE_DEFINITIONS[stage] || '';
+  $('#projectStageDefinition').value = definition;
+
+  const section = $('#initiationInfoSection');
+  const titleEl = $('#section5Title');
+
+  if (INITIATION_STAGES.includes(stage)) {
+    titleEl.textContent = '商务意向与立项信息';
+    section.classList.add('show');
+  } else {
+    titleEl.textContent = '商务意向与痛点';
+    section.classList.remove('show');
+    section.querySelectorAll('select, input').forEach(el => {
+      if (el.tagName === 'SELECT') el.value = '';
+      else if (el.type === 'checkbox') el.checked = false;
+      else if (el.type !== 'button' && el.id !== 'driversOther') el.value = '';
+    });
+    clearDriverOrder();
+  }
+  calculateCompleteness();
+}
+
+function onChannelCoopChange() {
+  const v = $('#channelCoop').value;
+  const field = document.querySelector('.channel-only');
+  if (!field) return;
+  if (v === '是') {
+    field.classList.add('show');
+  } else {
+    field.classList.remove('show');
+    const input = $('#channelName');
+    if (input) input.value = '';
+  }
+  calculateCompleteness();
+}
+
+function onDeployPreferenceChange() {
+  const v = $('#deployPreference').value;
+  const showSaaS = (v === 'SaaS部署');
+  const showLocal = (v === '混合云部署' || v === '本地部署');
+
+  document.querySelectorAll('.saas-only').forEach(el => {
+    if (showSaaS) el.classList.add('show');
+    else el.classList.remove('show');
+  });
+
+  document.querySelectorAll('.local-only').forEach(el => {
+    if (showLocal) el.classList.add('show');
+    else el.classList.remove('show');
+  });
+  calculateCompleteness();
+}
+
+function onNeedIntegrationChange() {
+  const v = $('#needIntegration').value;
+  const field = $('#systemIntegrationListField');
+  if (!field) return;
+  if (v === '是') {
+    field.style.display = 'flex';
+  } else {
+    field.style.display = 'none';
+    document.querySelectorAll('input[name="systemIntegrationList"]').forEach(cb => cb.checked = false);
+  }
+  calculateCompleteness();
+}
+
+function onBookingChannelChange() {
+  const channel = $('#bookingChannel').value;
+  const settlementMethodField = $('#settlementMethodField');
+  const settlementDaysField = $('#settlementDaysField');
+  const platformRatioField = $('#platformRatioField');
+  const travelFeeSection = $('#travelFeeSection');
+  const settlementMethod = $('#settlementMethod');
+  const settlementDays = $('#settlementDays');
+  const platformRatio = $('#platformRatio');
+  const settlementOther = $('#settlementMethodOther');
+  const settlementDaysOther = $('#settlementDaysOther');
+
+  if (channel === '员工自行采购（电话/邮件/其他）') {
+    settlementMethodField.style.display = 'none';
+    settlementDaysField.style.display = 'none';
+    platformRatioField.style.display = 'none';
+    travelFeeSection.classList.remove('show');
+    settlementMethod.value = '';
+    settlementDays.value = '';
+    platformRatio.value = '';
+    if (settlementOther) { settlementOther.classList.remove('show'); settlementOther.value = ''; }
+    if (settlementDaysOther) { settlementDaysOther.classList.remove('show'); settlementDaysOther.value = ''; }
+    travelFeeSection.querySelectorAll('input').forEach(el => el.value = '');
+  } else if (channel === '通过商旅平台预订（PC/移动端）') {
+    settlementMethodField.style.display = 'flex';
+    settlementDaysField.style.display = 'none';
+    platformRatioField.style.display = 'none';
+    travelFeeSection.classList.add('show');
+    platformRatio.value = '';
+    onSettlementMethodChange();
+  } else if (channel === '混合使用') {
+    settlementMethodField.style.display = 'flex';
+    platformRatioField.style.display = 'flex';
+    travelFeeSection.classList.add('show');
+    onSettlementMethodChange();
+  } else {
+    settlementMethodField.style.display = 'flex';
+    settlementDaysField.style.display = 'none';
+    platformRatioField.style.display = 'none';
+    travelFeeSection.classList.remove('show');
+    settlementMethod.value = '';
+    settlementDays.value = '';
+    platformRatio.value = '';
+    if (settlementOther) { settlementOther.classList.remove('show'); settlementOther.value = ''; }
+    if (settlementDaysOther) { settlementDaysOther.classList.remove('show'); settlementDaysOther.value = ''; }
+    travelFeeSection.querySelectorAll('input').forEach(el => el.value = '');
+  }
+  calculateCompleteness();
+}
+
+function onSettlementMethodChange() {
+  const method = $('#settlementMethod').value;
+  const daysField = $('#settlementDaysField');
+  const daysSelect = $('#settlementDays');
+  const channel = $('#bookingChannel').value;
+  const settlementOther = $('#settlementMethodOther');
+
+  if (channel === '员工自行采购（电话/邮件/其他）') {
+    daysField.style.display = 'none';
+    daysSelect.value = '';
+    if (settlementOther) {
+      settlementOther.classList.remove('show');
+      settlementOther.value = '';
+    }
+    calculateCompleteness();
+    return;
+  }
+
+  if (method === '企业月结') {
+    daysField.style.display = 'flex';
+  } else {
+    daysField.style.display = 'none';
+    daysSelect.value = '';
+    const daysOther = $('#settlementDaysOther');
+    if (daysOther) { daysOther.classList.remove('show'); daysOther.value = ''; }
+  }
+
+  if (settlementOther) {
+    if (method === '其他') {
+      settlementOther.classList.add('show');
+    } else {
+      settlementOther.classList.remove('show');
+      settlementOther.value = '';
+    }
+  }
+  calculateCompleteness();
+}
+
+/* ============================================================
+   差旅结构（按金额占比）：双列布局
+   ============================================================ */
+const structIds = ['structAir', 'structHotel', 'structTrain', 'structCar'];
+
+function getDefaultStruct(entType, industry, region) {
+  let air, hotel, train, car;
+
+  if (entType === '金融机构') {
+    air = 40; hotel = 40; train = 12; car = 8;
+  } else {
+    const map = {
+      '金融/保险': [40, 40, 12, 8],
+      '制造': [40, 35, 18, 7],
+      '建筑': [35, 35, 22, 8],
+      '信息/软件': [45, 38, 10, 7],
+      '科研/教育': [45, 35, 12, 8],
+      '批发零售': [42, 35, 15, 8],
+      '医药': [45, 40, 8, 7],
+      '租赁商务': [45, 38, 10, 7],
+      '其他': [42, 38, 13, 7]
+    };
+    const def = map[industry] || [42, 38, 13, 7];
+    [air, hotel, train, car] = def;
+  }
+
+  const adj = {
+    '华东': { air: 3, train: -3 },
+    '华南': { air: 3, train: -3 },
+    '华北': { air: 2, train: -2 },
+    '华中': { air: -2, train: 2 },
+    '西南': { air: -3, train: 3 },
+    '东北': { air: -3, train: 3 },
+    '西北': { air: -5, train: 5 }
+  }[region] || { air: 0, train: 0 };
+
+  air = Math.max(0, Math.min(100, air + adj.air));
+  train = Math.max(0, Math.min(100, train + adj.train));
+
+  let total = air + hotel + train + car;
+  if (total !== 100) {
+    const diff = 100 - total;
+    if (air + diff >= 0) air += diff;
+    else if (hotel + diff >= 0) hotel += diff;
+    else if (train + diff >= 0) train += diff;
+    else car += diff;
+  }
+
+  [air, hotel, train, car] = [air, hotel, train, car].map(v => Math.round(Math.max(0, Math.min(100, v))));
+
+  let sum = air + hotel + train + car;
+  if (sum !== 100) {
+    const maxVal = Math.max(air, hotel, train, car);
+    if (air === maxVal) air += (100 - sum);
+    else if (hotel === maxVal) hotel += (100 - sum);
+    else if (train === maxVal) train += (100 - sum);
+    else car += (100 - sum);
+  }
+
+  return [air, hotel, train, car];
+}
+
+function setDefaultStruct() {
+  const entType = $('[name="enterpriseType"]').value;
+  const industry = $('[name="industry"]').value;
+  const region = $('[name="region"]').value;
+  const [air, hotel, train, car] = getDefaultStruct(entType, industry, region);
+
+  $('#structAir').value = air;
+  $('#structHotel').value = hotel;
+  $('#structTrain').value = train;
+  $('#structCar').value = car;
+
+  updateStructDisplay();
+  setStructDisabled(true);
+}
+
+function setStructDisabled(disabled) {
+  structIds.forEach(id => {
+    document.getElementById(id).disabled = disabled;
+  });
+}
+
+function onAutoStructChange(checkbox) {
+  if (checkbox.checked) {
+    setDefaultStruct();
+  } else {
+    setStructDisabled(false);
+  }
+  calculateCompleteness();
+}
+
+function onStructChange(triggerEl) {
+  const autoCheck = $('#autoStruct');
+  if (autoCheck.checked) {
+    autoCheck.checked = false;
+    setStructDisabled(false);
+  }
+
+  let vals = structIds.map(id => parseInt(document.getElementById(id).value) || 0);
+  const idx = structIds.indexOf(triggerEl.id);
+
+  let otherSum = 0;
+  for (let i = 0; i < vals.length; i++) {
+    if (i !== idx) otherSum += vals[i];
+  }
+
+  let maxAllowed = 100 - otherSum;
+  if (maxAllowed < 0) maxAllowed = 0;
+
+  let currentVal = parseInt(triggerEl.value) || 0;
+  if (currentVal > maxAllowed) {
+    triggerEl.value = maxAllowed;
+  }
+
+  updateStructDisplay();
+}
+
+function updateStructDisplay() {
+  let total = 0;
+  const annualGmv = parseFloat($('#annualGmv').value) || 0;
+
+  structIds.forEach(id => {
+    const val = parseInt(document.getElementById(id).value) || 0;
+    const amount = annualGmv * val / 100;
+    const amountText = annualGmv > 0
+      ? `<small>${amount.toFixed(1)}万元</small>`
+      : '';
+    document.getElementById(id + 'Val').innerHTML = val + '%' + amountText;
+    total += val;
+  });
+
+  $('#structTotal').innerText = total + '%';
+
+  const remain = 100 - total;
+  const remainSpan = $('#structRemain');
+  if (remain > 0) {
+    remainSpan.innerText = `剩余 ${remain}%`;
+    remainSpan.className = 'remain';
+  } else if (remain === 0) {
+    remainSpan.innerText = '✅ 已满';
+    remainSpan.className = 'remain';
+  } else {
+    remainSpan.innerText = `⚠️ 超出 ${Math.abs(remain)}%`;
+    remainSpan.className = 'remain over';
+  }
+}
+
+function collectData() {
+  const form = $('#surveyForm');
+  const data = {};
+  const elements = form.elements;
+
+  for (const el of elements) {
+    if (!el.name) continue;
+
+    if (el.type === 'radio') {
+      if (el.checked) data[el.name] = el.value;
+      else if (!(el.name in data)) data[el.name] = '';
+    } else if (el.type === 'checkbox') {
+      if (!data[el.name]) data[el.name] = [];
+      if (el.checked) data[el.name].push(el.value);
+    } else {
+      data[el.name] = el.value;
+    }
+  }
+
+  data.drivers = driverOrder.slice();
+
+  data._surveyNo = 'DHTM-VISIT-' + Date.now();
+  data._submitTime = new Date().toISOString();
+
+  return data;
+}
+
+function fillData(data) {
+  if (!data) return;
+  const form = $('#surveyForm');
+
+  for (const el of form.elements) {
+    if (!el.name) continue;
+    const val = data[el.name];
+    if (val === undefined || val === null) continue;
+
+    if (el.type === 'radio') {
+      el.checked = (el.value === val);
+    } else if (el.type === 'checkbox') {
+      el.checked = Array.isArray(val) && val.includes(el.value);
+    } else {
+      el.value = val;
+    }
+  }
+
+  if (Array.isArray(data.drivers)) {
+    setDriverOrder(data.drivers);
+  } else if (typeof data.drivers === 'string' && data.drivers) {
+    setDriverOrder(data.drivers.split(/[、,，]/).filter(Boolean));
+  } else {
+    clearDriverOrder();
+  }
+
+  const otherInput = $('#driversOther');
+  if (otherInput) {
+    if (driverOrder.includes('其他')) {
+      otherInput.classList.add('show');
+    } else {
+      otherInput.classList.remove('show');
+    }
+  }
+
+  const otherSelects = [
+    { selectName: 'enterpriseType', otherId: 'enterpriseTypeOther' },
+    { selectName: 'industry', otherId: 'industryOther' },
+    { selectName: 'financeBrand', otherId: 'financeBrandOther' },
+    { selectName: 'oaBrand', otherId: 'oaBrandOther' },
+    { selectName: 'expenseBrand', otherId: 'expenseBrandOther' },
+    { selectName: 'tmcBrand', otherId: 'tmcBrandOther' },
+    { selectName: 'hrBrand', otherId: 'hrBrandOther' },
+    { selectName: 'erpBrand', otherId: 'erpBrandOther' },
+    { selectName: 'approvalChannel', otherId: 'approvalChannelOther' },
+    { selectName: 'settlementMethod', otherId: 'settlementMethodOther' },
+    { selectName: 'settlementDays', otherId: 'settlementDaysOther' }
+  ];
+  otherSelects.forEach(item => {
+    const sel = document.querySelector('[name="' + item.selectName + '"]');
+    if (sel) onOtherSelectChange(sel, item.otherId);
+  });
+
+  const autoCheck = $('#autoStruct');
+  if (autoCheck) {
+    setStructDisabled(autoCheck.checked);
+  }
+  updateStructDisplay();
+
+  onBookingChannelChange();
+  onSettlementMethodChange();
+  onDeployPreferenceChange();
+  onNeedIntegrationChange();
+  onProjectStageChange();
+  onChannelCoopChange();
+  calculateCompleteness();
+}
+
+function saveDraft() {
+  try {
+    const data = collectData();
+    localStorage.setItem(CONFIG.localStorageKey, JSON.stringify(data));
+    showStatus('✅ 草稿已保存到本地（' + new Date().toLocaleTimeString() + '）');
+  } catch (e) {
+    showStatus('❌ 保存草稿失败：' + e.message, true);
+  }
+}
+
+async function submitForm() {
+  const data = collectData();
+
+  if (!data.companyName || !data.companyName.trim()) {
+    showStatus('❌ 请填写「公司全称」', true);
+    document.querySelector('[name="companyName"]').focus();
+    return;
+  }
+
+  const structTotal = (parseInt(data.structAir) || 0) + (parseInt(data.structHotel) || 0) +
+                       (parseInt(data.structTrain) || 0) + (parseInt(data.structCar) || 0);
+  if (structTotal !== 100) {
+    showStatus('❌ 差旅结构四项占比总和应为100%，当前为' + structTotal + '%', true);
+    return;
+  }
+
+  if (!CONFIG.apiBaseUrl) {
+    try {
+      const submitted = JSON.parse(localStorage.getItem(CONFIG.submittedKey) || '[]');
+      submitted.push(data);
+      localStorage.setItem(CONFIG.submittedKey, JSON.stringify(submitted));
+      localStorage.removeItem(CONFIG.localStorageKey);
+      showStatus('✅ 提交成功！编号：' + data._surveyNo + '（本地模拟保存）');
+      console.log('[提交数据]', data);
+    } catch (e) {
+      showStatus('❌ 提交失败：' + e.message, true);
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch(CONFIG.apiBaseUrl + '/api/survey/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+      localStorage.removeItem(CONFIG.localStorageKey);
+      showStatus('✅ 提交成功！编号：' + result.surveyNo);
+    } else {
+      showStatus('❌ 提交失败：' + (result.message || '未知错误'), true);
+    }
+  } catch (e) {
+    showStatus('❌ 网络错误：' + e.message, true);
+  }
+}
+
+function clearForm() {
+  if (!confirm('确定要清空所有已填写的内容吗？此操作不可恢复。')) return;
+  $('#surveyForm').reset();
+  localStorage.removeItem(CONFIG.localStorageKey);
+  $('#autoStruct').checked = true;
+  setDefaultStruct();
+  // 重置后重新填入今天的日期
+  $('#visitDate').value = todayDateInput();
+  onBookingChannelChange();
+  onSettlementMethodChange();
+  onDeployPreferenceChange();
+  onNeedIntegrationChange();
+  onProjectStageChange();
+  onChannelCoopChange();
+  clearDriverOrder();
+
+  document.querySelectorAll('.other-input').forEach(el => {
+    el.classList.remove('show');
+    el.value = '';
+  });
+  const driversOther = $('#driversOther');
+  if (driversOther) {
+    driversOther.classList.remove('show');
+    driversOther.value = '';
+  }
+
+  calculateCompleteness();
+  showStatus('🗑️ 表单已清空');
+}
+
+function exportPDF() {
+  const data = collectData();
+  renderPrintArea(data);
+  setTimeout(() => {
+    window.print();
+  }, 200);
+}
+
+function getOtherDisplay(value, otherValue) {
+  if (value === '其他') {
+    return otherValue ? '其他（' + otherValue + '）' : '其他';
+  }
+  return value;
+}
+
+function formatDrivers(drivers, driversOther) {
+  if (!drivers) return '';
+  let arr = [];
+  if (Array.isArray(drivers)) {
+    arr = drivers;
+  } else if (typeof drivers === 'string') {
+    arr = drivers.split(/[、,，]/).filter(Boolean);
+  }
+  if (arr.length === 0) return '';
+  return arr.map((d, i) => {
+    let text = d;
+    if (d === '其他' && driversOther) text = '其他（' + driversOther + '）';
+    return (i + 1) + '.' + text;
+  }).join(' ');
+}
+
+function renderPrintArea(data) {
+  const esc = (v) => {
+    if (v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0)) {
+      return '<span class="empty">未填写</span>';
+    }
+    if (Array.isArray(v)) return v.map(esc).join('、');
+    return String(v).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  };
+
+  const row = (label, key) => `<tr><th>${label}</th><td>${esc(data[key])}</td></tr>`;
+  const rowOther = (label, key, otherKey) =>
+    `<tr><th>${label}</th><td>${esc(getOtherDisplay(data[key], data[otherKey]))}</td></tr>`;
+  const section = (title, rows) => `<h2>${title}</h2><table>${rows}</table>`;
+
+  const annualGmv = parseFloat(data.annualGmv) || 0;
+  const structAir = parseInt(data.structAir) || 0;
+  const structHotel = parseInt(data.structHotel) || 0;
+  const structTrain = parseInt(data.structTrain) || 0;
+  const structCar = parseInt(data.structCar) || 0;
+  const structText = `机票 ${structAir}%${annualGmv > 0 ? '(' + (annualGmv*structAir/100).toFixed(1) + '万元)' : ''} / ` +
+                     `酒店 ${structHotel}%${annualGmv > 0 ? '(' + (annualGmv*structHotel/100).toFixed(1) + '万元)' : ''} / ` +
+                     `火车 ${structTrain}%${annualGmv > 0 ? '(' + (annualGmv*structTrain/100).toFixed(1) + '万元)' : ''} / ` +
+                     `用车 ${structCar}%${annualGmv > 0 ? '(' + (annualGmv*structCar/100).toFixed(1) + '万元)' : ''}`;
+
+  const financeBrandDisplay = getOtherDisplay(data.financeBrand, data.financeBrandOther);
+  const oaBrandDisplay = getOtherDisplay(data.oaBrand, data.oaBrandOther);
+  const expenseBrandDisplay = getOtherDisplay(data.expenseBrand, data.expenseBrandOther);
+  const tmcBrandDisplay = getOtherDisplay(data.tmcBrand, data.tmcBrandOther);
+  const hrBrandDisplay = getOtherDisplay(data.hrBrand, data.hrBrandOther);
+  const erpBrandDisplay = getOtherDisplay(data.erpBrand, data.erpBrandOther);
+
+  const dp = data.deployPreference || '';
+  const showSaaS = (dp === 'SaaS部署');
+  const showLocal = (dp === '混合云部署' || dp === '本地部署');
+  const showIntegrationList = data.needIntegration === '是';
+  const showChannelName = data.channelCoop === '是';
+  const showInitiation = INITIATION_STAGES.includes(data.projectStage);
+  const showTravelFee = (data.bookingChannel === '通过商旅平台预订（PC/移动端）' || data.bookingChannel === '混合使用');
+
+  let deployRows = '';
+  deployRows += row('部署方式倾向', 'deployPreference');
+  if (showSaaS) deployRows += row('预计开通账户数', 'accountCount');
+  deployRows += row('是否需要开通多租户', 'needMultiTenant');
+  deployRows += row('是否需要多TMC聚合比价', 'multiTmc');
+  deployRows += row('是否需要系统对接', 'needIntegration');
+  if (showIntegrationList && data.systemIntegrationList && data.systemIntegrationList.length > 0) {
+    deployRows += `<tr><th>需要对接的系统</th><td>${esc(data.systemIntegrationList)}</td></tr>`;
+  }
+  if (showLocal) {
+    deployRows += row('是否有数据不出境要求', 'dataLocal');
+    deployRows += row('是否需要等保三级', 'level3');
+    deployRows += row('是否需要定制开发', 'customDev');
+    deployRows += row('是否需要信创适配', 'xinchuang');
+  }
+
+  let travelRows = '';
+  travelRows += rowOther('出差申请方式', 'approvalChannel', 'approvalChannelOther');
+  travelRows += row('审批环节', 'approvalNodes');
+  travelRows += row('当前预订方式', 'bookingChannel');
+  if (data.bookingChannel === '混合使用' && data.platformRatio) {
+    travelRows += `<tr><th>商旅平台预订占比</th><td>${esc(data.platformRatio)}%</td></tr>`;
+  }
+  if (data.bookingChannel !== '员工自行采购（电话/邮件/其他）') {
+    travelRows += rowOther('商旅平台订单结算方式', 'settlementMethod', 'settlementMethodOther');
+    if (data.settlementMethod === '企业月结') {
+      travelRows += rowOther('月结账期', 'settlementDays', 'settlementDaysOther');
+    }
+  }
+  if (showTravelFee) {
+    travelRows += `<tr><th colspan="2" style="background:#f0f3f8;font-weight:600;">当前各项差旅服务费标准</th></tr>`;
+    travelRows += row('国内机票（元/张）', 'feeAirDomestic');
+    travelRows += row('国际机票·洲际内（元/段）', 'feeAirIntra');
+    travelRows += row('国际机票·跨洲际（元/段）', 'feeAirInter');
+    travelRows += row('国内酒店（元/间夜）', 'feeHotelDomestic');
+    travelRows += row('国际酒店（元/间夜）', 'feeHotelIntl');
+    travelRows += row('火车票（元/张）', 'feeTrain');
+    travelRows += row('用车（元/单）', 'feeCar');
+  }
+
+  const section5Title = showInitiation ? '五、商务意向与立项信息' : '五、商务意向与痛点';
+
+  let businessRows = '';
+  businessRows += row('项目阶段', 'projectStage');
+  businessRows += row('定义/判断依据', 'projectStageDefinition');
+  if (showInitiation) {
+    businessRows += `<tr><th colspan="2" style="background:#f0f3f8;font-weight:600;">立项阶段关键信息</th></tr>`;
+    const driversDisplay = formatDrivers(data.drivers, data.driversOther);
+    businessRows += `<tr><th>立项驱动因素（按优先级）</th><td>${driversDisplay || '<span class="empty">未填写</span>'}</td></tr>`;
+    businessRows += row('项目预算范围（万元）', 'budgetRange');
+    businessRows += row('计划上线时间', 'plannedOnlineTime');
+    businessRows += row('立项发起部门', 'initiatingDept');
+    businessRows += row('立项审批层级', 'approvalLevel');
+    businessRows += row('预算来源', 'budgetSource');
+    businessRows += row('预计采购时间', 'expectedProcurementTime');
+    businessRows += row('采购方式', 'procurementMethod');
+  }
+  businessRows += row('当前差旅管理最大痛点', 'painPoint');
+  businessRows += row('期望解决的核心问题', 'expectation');
+  businessRows += row('是否通过渠道合作', 'channelCoop');
+  if (showChannelName) {
+    businessRows += row('渠道方名称', 'channelName');
+  }
+
+  let html = `
+    <h1>东华商旅 · 销售首次拜访调研表</h1>
+    <div class="print-sub">方案编号：DHTM-VISIT-2026</div>
+    <div class="print-meta">东华商旅（东华软件股份公司 002065 旗下）</div>
+
+    ${section('一、客户基本信息', `
+      ${row('填写人', 'salesName')}
+      <tr><th>拜访日期</th><td>${esc(formatDateDisplay(data.visitDate))}</td></tr>
+      ${row('公司全称', 'companyName')}
+      ${row('统一社会信用代码', 'creditCode')}
+      ${rowOther('企业类型', 'enterpriseType', 'enterpriseTypeOther')}
+      ${rowOther('所属行业', 'industry', 'industryOther')}
+      ${row('所属区域', 'region')}
+      ${row('员工总人数', 'employeeCount')}
+      ${row('年度差旅预算/GMV（万元）', 'annualGmv')}
+      <tr><th>最大单月差旅量（万元）</th><td>${esc(data.peakMonthlyGmv)} 万元（对应月份：${esc(data.peakMonth)}）</td></tr>
+      <tr><th>差旅结构占比（按金额）</th><td>${structText}</td></tr>
+    `)}
+
+    ${section('二、系统环境概览', `
+      <table>
+        <tr><th>系统类型</th><th>品牌</th><th>部署方式</th></tr>
+        <tr><td>财务系统</td><td>${esc(financeBrandDisplay)}</td><td>${esc(data.financeDeploy)}</td></tr>
+        <tr><td>OA系统</td><td>${esc(oaBrandDisplay)}</td><td>${esc(data.oaDeploy)}</td></tr>
+        <tr><td>费控系统</td><td>${esc(expenseBrandDisplay)}</td><td>${esc(data.expenseDeploy)}</td></tr>
+        <tr><td>现有商旅系统</td><td>${esc(tmcBrandDisplay)}</td><td>${esc(data.tmcDeploy)}</td></tr>
+        <tr><td>HR系统</td><td>${esc(hrBrandDisplay)}</td><td>${esc(data.hrDeploy)}</td></tr>
+        <tr><td>ERP系统</td><td>${esc(erpBrandDisplay)}</td><td>${esc(data.erpDeploy)}</td></tr>
+      </table>
+    `)}
+
+    ${section('三、差旅管理现状', travelRows)}
+
+    ${section('四、部署与合规倾向', deployRows)}
+
+    ${section(section5Title, businessRows)}
+
+    <div class="print-footer">
+      东华商旅 · 让每一次因公出行，都更有价值　|　方案编号：DHTM-VISIT-2026　|　打印时间：${new Date().toLocaleString('zh-CN')}
+    </div>
+  `;
+
+  $('#printArea').innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // 自动填入今天的日期（销售可手动修改）
+  const visitDateEl = $('#visitDate');
+  if (visitDateEl && !visitDateEl.value) {
+    visitDateEl.value = todayDateInput();
+  }
+
+  ['enterpriseType', 'industry', 'region'].forEach(name => {
+    const el = document.querySelector('[name="' + name + '"]');
+    if (el) {
+      el.addEventListener('change', function() {
+        if ($('#autoStruct').checked) {
+          setDefaultStruct();
+        }
+      });
+    }
+  });
+
+  if ($('#autoStruct').checked) {
+    setDefaultStruct();
+  } else {
+    setStructDisabled(false);
+    updateStructDisplay();
+  }
+
+  initDriverGroup();
+
+  onBookingChannelChange();
+  onSettlementMethodChange();
+  onDeployPreferenceChange();
+  onNeedIntegrationChange();
+  onProjectStageChange();
+  onChannelCoopChange();
+
+  const form = document.getElementById('surveyForm');
+  form.addEventListener('input', calculateCompleteness);
+  form.addEventListener('change', calculateCompleteness);
+
+  try {
+    const draft = localStorage.getItem(CONFIG.localStorageKey);
+    if (draft) {
+      fillData(JSON.parse(draft));
+      showStatus('📄 已加载上次保存的草稿');
+    }
+  } catch (e) {
+    console.warn('加载草稿失败', e);
+  }
+
+  calculateCompleteness();
+
+  setInterval(() => {
+    try {
+      const data = collectData();
+      if (data.companyName && data.companyName.trim()) {
+        localStorage.setItem(CONFIG.localStorageKey, JSON.stringify(data));
+      }
+    } catch (e) {}
+  }, 60000);
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveDraft();
+    }
+  });
+});
+</script>
+</body>
+</html>
